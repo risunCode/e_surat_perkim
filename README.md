@@ -9,6 +9,8 @@ E-Surat Perkim dikembangkan untuk membantu pengelolaan administrasi surat-menyur
 
 Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertimbangkan alur kerja birokrasi, termasuk fitur disposisi berjenjang dan pelacakan status penyelesaian dokumen.
 
+<img width="1917" height="971" alt="image" src="https://github.com/user-attachments/assets/2f9cbcd3-3995-4337-98e6-00be8c2829b7" />
+
 ## Tech Stack
 
 | Komponen | Teknologi |
