@@ -9,7 +9,7 @@
         </div>
         <div class="relative z-10">
             <div class="flex items-center gap-3 mb-4">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">v1.0.0 Stable</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">v2.0.0 Stable</span>
                 <span class="px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--bg-input); color: var(--text-secondary);">Laravel 12</span>
                 <span class="px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--bg-input); color: var(--text-secondary);">PHP 8.3</span>
             </div>
