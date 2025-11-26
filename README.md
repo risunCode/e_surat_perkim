@@ -1,13 +1,25 @@
 # E-Surat Perkim v2.0.0 "Shorekeeper"
-**"Resonance of Enhanced File Management"**
-
-Sistem manajemen surat elektronik untuk keperluan administrasi perkantoran dengan kemampuan upload file hingga 15MB dan tracking metadata lengkap.
-
-## Tentang Aplikasi
-
 E-Surat Perkim dikembangkan untuk membantu pengelolaan administrasi surat-menyurat secara digital. Aplikasi ini menggantikan proses manual pencatatan surat dengan sistem terintegrasi yang memungkinkan pelacakan surat masuk, surat keluar, disposisi, dan korespondensi dalam satu platform.
 
 Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertimbangkan alur kerja birokrasi, termasuk fitur disposisi berjenjang dan pelacakan status penyelesaian dokumen.
+
+<img width="1917" height="971" alt="E-Surat Perkim Dashboard" src="https://github.com/user-attachments/assets/2f9cbcd3-3995-4337-98e6-00be8c2829b7" />
+
+---
+
+## Daftar Isi
+
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#-quick-start)
+- [Default Login](#default-login)
+- [Fitur](#fitur)
+- [Production Deployment](#production-deployment)
+- [LAN Hosting](#lan-hosting-opsional)
+- [Referensi Tambahan](#referensi-tambahan)
+- [Lisensi](#lisensi)
+
+---
 
 ## Tech Stack
 
@@ -16,223 +28,206 @@ Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertim
 | Framework | Laravel 12 |
 | PHP | 8.3+ |
 | Database | MySQL 8.0 / MariaDB 10.6+ |
-| Frontend | Blade Templates, TailwindCSS |
-| Authentication | Laravel Fortify |
-| Build Tool | Vite |
-| Icons | Boxicons |
-| Image Crop | Cropper.js |
-| Alerts | SweetAlert2 |
+| Frontend | Blade, TailwindCSS, Vite |
+| Auth | Laravel Fortify |
+| UI Libraries | Boxicons, Cropper.js, SweetAlert2 |
 
-## Fitur
+---
 
-### Surat Masuk
-Pencatatan surat yang diterima dari pihak eksternal. Setiap surat masuk dapat dilengkapi dengan lampiran digital, klasifikasi, dan catatan. Surat masuk dapat dibalas langsung (menghasilkan surat keluar baru) atau diteruskan melalui disposisi internal.
+## Prerequisites
 
-### Surat Keluar
-Pencatatan surat yang dikirim ke pihak eksternal. Sistem secara otomatis melacak apakah surat keluar merupakan balasan dari surat masuk sebelumnya, membentuk rantai korespondensi yang dapat ditelusuri.
+Pastikan sudah terinstall:
 
-### Disposisi
-Instruksi internal untuk menindaklanjuti surat masuk. Disposisi mencakup tujuan, instruksi, catatan, dan tenggat waktu. Status disposisi dapat dipantau (Pending, Diproses, Selesai, Urgent) dengan indikator keterlambatan.
+- **PHP 8.3+**
+- **Composer 2.x**
+- **Node.js 18+** & NPM
+- **MySQL 8.0** / MariaDB 10.6+
+- **Git**
 
-### Korespondensi
-Fitur pelacakan rantai surat. Ketika surat masuk dibalas, sistem membuat relasi antara surat asal dan balasannya. Tampilan korespondensi menunjukkan alur komunikasi secara visual dengan penomoran urut.
+---
 
-### Galeri Lampiran
-Tampilan khusus untuk melihat semua lampiran surat dalam format galeri. Mendukung preview langsung untuk gambar dan PDF, serta fitur download.
+## Quick Start
 
-### Notifikasi
-Sistem notifikasi real-time untuk memberitahu pengguna tentang surat baru, disposisi, dan balasan. Notifikasi dapat ditandai dibaca secara individual atau massal.
+Ikuti langkah-langkah berikut secara berurutan untuk menjalankan aplikasi di lokal.
 
-### Multi-Tema
-Empat pilihan tema tampilan: Light (default), Dark, Black, dan Pink. Preferensi tema disimpan di browser pengguna.
+### Step 1: Clone Repository
 
-### Manajemen Pengguna
-Dua level akses: Administrator (akses penuh) dan Staff (akses terbatas pada data sendiri). Registrasi pengguna baru menggunakan sistem kode referral yang dapat diatur oleh administrator.
-
-### Security Questions
-Fitur reset password menggunakan pertanyaan keamanan untuk aplikasi lokal tanpa email. User wajib setup pertanyaan keamanan dan tanggal lahir sebelum dapat mengakses dashboard.
-
-### Keamanan
-- **Rate Limiting**: Maksimal 5 percobaan login per menit
-- **Anti Brute Force**: IP + Email based tracking
-- **SQL Injection Protection**: Input sanitization & pattern detection
-- **XSS Prevention**: Security headers & input validation
-- **CSRF Protection**: Laravel CSRF token
-- **Session Security**: 7 hari expiry dengan inactivity check
-
-### Responsive Design
-- **Mobile-first**: Tampilan dioptimalkan untuk semua ukuran layar
-- **Sidebar Toggle**: Sidebar tersembunyi di mobile, dapat dibuka via hamburger menu
-- **Scrollable Tables**: Tabel dapat di-scroll horizontal di layar kecil
-- **Touch-friendly**: Tombol dan interaksi sesuai untuk layar sentuh
-
-## Requirements
-
-- PHP 8.3+
-- Composer 2.x
-- Node.js 18+ & NPM
-- MySQL 8.0 / MariaDB 10.6+
-- Git
-
-## Instalasi
-
-### 1. Clone Repository
 ```bash
 git clone <repository-url>
 cd E-Surat-Perkim
 ```
 
-## Setup Domain Lokal (Laragon)
+### Step 2: Install Dependencies
 
-Jika menggunakan **Laragon**, bisa setup domain lokal yang lebih friendly:
-
-**Metode A - Document Root Switch (Recommended):**
-1. Laragon → **Menu** → **Document Root** → **Browse**
-2. Pilih folder project: `D:\TokioWorld\MyGitRepository\TownProject\E-Surat-Perkim`
-3. Laragon → **Menu** → **Auto Virtual Hosts** → **esurat-perkim.test**
-4. Update `.env`: `APP_URL=http://esurat-perkim.test`
-5. Restart Laragon (Stop All → Start All)
-6. Akses: `http://esurat-perkim.test`
-
-**Metode B - Copy ke Laragon:**
-```bash
-# Copy project ke folder Laragon
-cp -r E-Surat-Perkim C:\laragon\www\esurat-perkim.test\
-```
-
-> **Note:** Laragon otomatis update hosts file dan setup virtual host.
-
-### 2. Install Dependencies
 ```bash
 composer install
 npm install
 ```
 
-### 3. Environment Setup
+### Step 3: Setup Local Server
+
+**Laragon v6 (Recommended)** - Versi terakhir yang gratis
+
+1. Download [Laragon Full](https://laragon.org/download/) versi 6.x
+2. Install dan jalankan Laragon
+3. Klik **Start All** untuk menjalankan Apache/Nginx + MySQL
+
+**XAMPP (Alternatif)**
+
+1. Download [XAMPP](https://www.apachefriends.org/) dengan PHP 8.3+
+2. Jalankan XAMPP Control Panel
+3. Start **Apache** dan **MySQL**
+
+#### Aktifkan PHP Extensions
+
+Pastikan extensions berikut aktif di `php.ini`:
+
+```ini
+extension=fileinfo
+extension=gd
+extension=mbstring
+extension=openssl
+extension=pdo_mysql
+extension=zip
+```
+
+> **Laragon:** Menu → PHP → Extensions → centang yang diperlukan
+> **XAMPP:** Edit `php.ini` di `C:\xampp\php\php.ini`, hapus `;` di depan extension
+
+### Step 4: Environment Setup
+
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-### 4. Konfigurasi .env
-
-Edit file `.env` sesuai environment:
+Edit file `.env`:
 
 ```env
-# Aplikasi
 APP_NAME="E-Surat Perkim"
-APP_ENV=local                    # local / production
-APP_DEBUG=true                   # true untuk dev, false untuk production
+APP_ENV=local
+APP_DEBUG=true
 APP_URL=http://localhost:8000
 
-# Database (MySQL/MariaDB)
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=e_surat_perkim
 DB_USERNAME=root
 DB_PASSWORD=your_password
-
-# Session & Cache
-SESSION_DRIVER=database
-CACHE_STORE=database
-QUEUE_CONNECTION=database
-
-# File Storage
-FILESYSTEM_DISK=local
 ```
 
-> **Note:** Aplikasi ini tidak memerlukan konfigurasi email (MAIL_*) karena menggunakan security questions untuk reset password.
+### Step 5: Database Setup
 
-### 5. Database Setup
+**Pilih salah satu opsi:**
 
-**Opsi A - Via Migration (Development):**
+#### Opsi A - Via Migration (Recommended untuk Development)
+
 ```bash
 php artisan migrate
 php artisan db:seed
 ```
 
-> **Note:** Seeder hanya mengisi data referensi (klasifikasi, status, config). Admin dan kode referral harus ditambahkan manual via migraplus.
+#### Opsi B - Via SQL File (Fresh Install)
 
-**Opsi B - Via SQL File (Fresh Install):**
 ```bash
+# Buat database
 mysql -u root -p -e "CREATE DATABASE e_surat_perkim"
+
+# Import struktur tabel
 mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_full.sql
 ```
 
-### 6. Tambah Admin Pertama
+### Step 6: Tambah Admin Pertama
 
-Setelah database siap, tambahkan admin pertama:
 ```bash
 mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_firstadmin.sql
 ```
 
-### 7. Tambah Kode Referral (Opsional)
+### Step 7: Kode Referral (Opsional)
 
 Untuk mengaktifkan registrasi user baru:
+
 ```bash
 mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_references.sql
 ```
 
-> **Kode Default:** `ADMIN2025` (admin, max 5x), `STAFF2025` (staff, unlimited)
+> Kode default: `ADMIN2025` (admin, max 5x), `STAFF2025` (staff, unlimited)
 
-### 8. Storage Link
+### Step 8: Storage Link
+
 ```bash
 php artisan storage:link
 ```
 
-### 9. Run Development Server
-```bash
-# Terminal 1 - Laravel
-php artisan serve
+### Step 9: Build Assets & Run
 
-# Terminal 2 - Vite (hot reload)
-npm run dev
+```bash
+# Build frontend assets
+npm run build
+
+# Jalankan server
+php artisan serve
 ```
 
-> **Upload Limits:** Server sudah dikonfigurasi untuk upload 15MB per file, 50MB total. Jika ada error upload, pastikan php.ini memiliki setting:
-> - `upload_max_filesize = 15M`
-> - `post_max_size = 50M`
+**Akses:** http://127.0.0.1:8000
 
-Akses: http://127.0.0.1:8000
+> **Development Mode:** Jika ingin hot-reload saat develop, jalankan `npm run dev` di terminal terpisah (bukan `npm run build`).
 
-## Build untuk Production
+---
+
+## Default Login
+
+| Email | Password | Role |
+|-------|----------|------|
+| admin@perkim.go.id | perkim2025x | Admin |
+
+---
+
+## Fitur
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Surat Masuk** | Pencatatan surat dari eksternal dengan lampiran & klasifikasi |
+| **Surat Keluar** | Pencatatan surat keluar dengan tracking korespondensi |
+| **Disposisi** | Instruksi internal dengan status & deadline |
+| **Korespondensi** | Pelacakan rantai surat balasan |
+| **Galeri Lampiran** | Preview & download lampiran (gambar, PDF) |
+| **Notifikasi** | Real-time notification untuk surat & disposisi baru |
+| **Multi-Tema** | Light, Dark, Black, Pink |
+| **Security Questions** | Reset password tanpa email |
+| **Responsive** | Mobile-friendly design |
+
+### Keamanan
+
+- Rate Limiting (5x/menit)
+- Anti Brute Force
+- SQL Injection & XSS Protection
+- CSRF Token
+- Session Security (7 hari)
+
+---
+
+## Production Deployment
 
 ### 1. Build Assets
+
 ```bash
 npm run build
 ```
 
-Hasil build akan tersimpan di `public/build/`.
-
-### 2. Server Configuration
-
-**PHP Settings (php.ini):**
-```ini
-upload_max_filesize = 15M
-post_max_size = 50M
-max_file_uploads = 20
-max_execution_time = 300
-memory_limit = 256M
-```
-
-**Web Server (.htaccess untuk Apache):**
-```apache
-php_value upload_max_filesize 15M
-php_value post_max_size 50M
-php_value max_file_uploads 20
-```
-
-### 3. Environment Configuration
+### 2. Konfigurasi Environment
 
 Edit `.env`:
+
 ```env
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://yourdomain.com
 ```
 
-### 4. Optimize Laravel
+### 3. Optimize Laravel
+
 ```bash
 php artisan config:cache
 php artisan route:cache
@@ -240,82 +235,60 @@ php artisan view:cache
 php artisan optimize
 ```
 
-### 5. Set Permissions (Linux)
+### 4. PHP Settings (php.ini)
+
+```ini
+upload_max_filesize = 15M
+post_max_size = 50M
+max_file_uploads = 20
+memory_limit = 256M
+```
+
+### 5. Permissions (Linux)
+
 ```bash
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 ```
 
-> **Note:** Setelah `npm run build`, tidak perlu menjalankan `npm run dev`. Assets sudah dikompilasi.
+---
 
-## Hosting Jaringan Lokal
+## LAN Hosting (Opsional)
 
-Agar aplikasi dapat diakses oleh perangkat lain di jaringan lokal (LAN):
+Untuk akses dari perangkat lain di jaringan lokal:
 
-### 1. Cari IP Lokal
 ```bash
-# Windows
+# Cari IP lokal (Windows)
 ipconfig
 
-# Linux/Mac
-ip addr
-# atau
-ifconfig
-```
-
-Cari **IPv4 Address** dari adapter yang aktif (biasanya `192.168.x.x`).
-
-### 2. Jalankan Server dengan Host 0.0.0.0
-```bash
-# Terminal 1 - Laravel
+# Jalankan server
 php artisan serve --host=0.0.0.0 --port=8000
 
-# Terminal 2 - Vite
-npm run dev -- --host
-```
-
-### 3. Buka Firewall (Windows)
-
-Jalankan di **PowerShell sebagai Administrator**:
-```powershell
+# Buka firewall (PowerShell Admin)
 netsh advfirewall firewall add rule name="Laravel Dev Server" dir=in action=allow protocol=tcp localport=8000
 ```
 
-### 4. Akses dari Perangkat Lain
+Akses dari perangkat lain: `http://192.168.x.x:8000`
 
-Perangkat lain di jaringan yang sama dapat mengakses via:
-```
-http://<IP-LOKAL-KAMU>:8000
-```
+---
 
-Contoh: `http://192.168.50.23:8000`
+## Referensi Tambahan
 
-> **Note:** Pastikan semua perangkat terhubung ke jaringan WiFi/LAN yang sama.
+<details>
+<summary><strong>Setup Laragon (Domain Lokal)</strong></summary>
 
-## Default Login
+1. Laragon → **Menu** → **Document Root** → **Browse**
+2. Pilih folder project
+3. Laragon → **Menu** → **Auto Virtual Hosts** → **esurat-perkim.test**
+4. Update `.env`: `APP_URL=http://esurat-perkim.test`
+5. Restart Laragon
+6. Akses: `http://esurat-perkim.test`
 
-Setelah import `e_surat_perkim_firstadmin.sql`:
+</details>
 
-| Email | Password | Role |
-|-------|----------|------|
-| admin@perkim.go.id | perkim2025x | Admin |
+<details>
+<summary><strong>Struktur Database</strong></summary>
 
-> **Note:** Default admin sudah memiliki security setup completed. User baru wajib setup pertanyaan keamanan sebelum akses dashboard.
-
-## Kode Registrasi
-
-Setelah import `e_surat_perkim_references.sql`:
-
-| Kode | Role | Max Usage |
-|------|------|----------|
-| `ADMIN2025` | Admin | 5x |
-| `STAFF2025` | Staff | Unlimited |
-
-> **Note:** Kode dapat dikelola via Admin Panel → Reference Codes.
-
-## Struktur Database
-
-### Tabel Utama
 | Tabel | Deskripsi |
 |-------|-----------|
 | users | Data pengguna + security questions |
@@ -328,15 +301,7 @@ Setelah import `e_surat_perkim_references.sql`:
 | reference_codes | Kode referral |
 | configs | Konfigurasi aplikasi |
 
-### Kolom Security (users)
-| Kolom | Tipe | Deskripsi |
-|-------|------|-----------|
-| birth_date | DATE | Tanggal lahir |
-| security_question | VARCHAR | Key/custom pertanyaan |
-| security_answer | VARCHAR | Hash jawaban |
-| security_setup_completed | BOOLEAN | Status setup |
-
-### Relasi
+**Relasi:**
 ```
 users (1) ──< (N) letters
 users (1) ──< (N) dispositions
@@ -345,34 +310,32 @@ letters (1) ──< (N) attachments
 letters (N) ──> (1) letters (reference_to)
 ```
 
-## File SQL
+</details>
+
+<details>
+<summary><strong>File SQL</strong></summary>
 
 Tersedia di `database/migraplus/`:
 
-| File | Isi |
-|------|-----|
-| `e_surat_perkim_full.sql` | Struktur tabel lengkap (wajib) |
+| File | Keterangan |
+|------|------------|
+| `e_surat_perkim_full.sql` | Struktur tabel (wajib) |
 | `e_surat_perkim_firstadmin.sql` | Admin pertama (wajib) |
 | `e_surat_perkim_references.sql` | Kode referral (opsional) |
 
-## Konfigurasi Tema
+</details>
 
-Tema disimpan di localStorage dengan key `theme`. Pilihan:
-- `light` (default)
-- `dark`
-- `black`
-- `pink`
+<details>
+<summary><strong>API Endpoints</strong></summary>
 
-## API Endpoints
-
-### Notifikasi
+**Notifikasi:**
 ```
 GET  /notifications/unread    - Ambil notifikasi belum dibaca
 POST /notifications/{id}/read - Tandai dibaca
 POST /notifications/read-all  - Tandai semua dibaca
 ```
 
-### Password Reset (Local)
+**Password Reset:**
 ```
 GET  /forgot-password         - Form email
 POST /forgot-password         - Verify email
@@ -382,12 +345,16 @@ GET  /reset-password-local    - Form password baru
 POST /reset-password-local    - Update password
 ```
 
+</details>
+
+---
+
 ## Kontribusi
 
 1. Fork repository
-2. Buat branch fitur (`git checkout -b fitur-baru`)
-3. Commit perubahan (`git commit -m 'Tambah fitur baru'`)
-4. Push ke branch (`git push origin fitur-baru`)
+2. Buat branch: `git checkout -b fitur-baru`
+3. Commit: `git commit -m 'Tambah fitur baru'`
+4. Push: `git push origin fitur-baru`
 5. Buat Pull Request
 
 ## Lisensi
