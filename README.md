@@ -1,9 +1,10 @@
-# E-Surat Perkim v2.4.0 "Shorekeeper"
+# E-Surat Perkim v2.4.0 "Iuno, i watch the moon"
 E-Surat Perkim dikembangkan untuk membantu pengelolaan administrasi surat-menyurat secara digital. Aplikasi ini menggantikan proses manual pencatatan surat dengan sistem terintegrasi yang memungkinkan pelacakan surat masuk, surat keluar, disposisi, dan korespondensi dalam satu platform.
 
 Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertimbangkan alur kerja birokrasi, termasuk fitur disposisi berjenjang, pelacakan status penyelesaian dokumen, dan **verifikasi integritas dokumen dengan QR code & digital signature**.
 
-<img width="1917" height="971" alt="E-Surat Perkim Dashboard" src="https://github.com/user-attachments/assets/2f9cbcd3-3995-4337-98e6-00be8c2829b7" />
+<img width="1919" height="964" alt="image" src="https://github.com/user-attachments/assets/ae43e73b-d498-43c2-8932-530489cb74a4" />
+
 
 ---
 
@@ -20,8 +21,6 @@ Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertim
 - [Lisensi](#lisensi)
 
 ---
-
-<img width="1917" height="971" alt="image" src="https://github.com/user-attachments/assets/2f9cbcd3-3995-4337-98e6-00be8c2829b7" />
 
 ## Tech Stack
 
@@ -59,7 +58,7 @@ Ikuti langkah-langkah berikut secara berurutan untuk menjalankan aplikasi di lok
 
 ```bash
 git clone <repository-url>
-cd E-Surat-Perkim
+cd e_surat_perkim
 ```
 
 ### Step 2: Install Dependencies

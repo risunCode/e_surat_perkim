@@ -22,7 +22,7 @@
                 <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium btn-primary">
                     <i class="bx bx-home"></i> Dashboard
                 </a>
-                <a href="https://github.com/risunCode/E-Surat-Perkim" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium" style="background-color: var(--bg-input); color: var(--text-primary);">
+                <a href="https://github.com/risunCode/e_surat_perkim" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium" style="background-color: var(--bg-input); color: var(--text-primary);">
                     <i class="bx bxl-github"></i> Source Code
                 </a>
             </div>
@@ -231,7 +231,7 @@
                     <a href="https://github.com/risunCode" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:opacity-80" style="background-color: var(--bg-input); color: var(--text-primary);">
                         <i class="bx bxl-github text-xl"></i> GitHub Profile
                     </a>
-                    <a href="https://github.com/risunCode/E-Surat-Perkim" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium btn-primary">
+                    <a href="https://github.com/risunCode/e_surat_perkim" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium btn-primary">
                         <i class="bx bx-git-repo-forked text-xl"></i> Fork Repository
                     </a>
                 </div>
