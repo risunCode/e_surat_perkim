@@ -31,7 +31,7 @@ class UserController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
-        $users = $query->latest()->paginate(10);
+        $users = $this->paginateQuery($query->latest(), $request);
         $roles = Role::options();
 
         return view('pages.admin.user.index', compact('users', 'roles'));

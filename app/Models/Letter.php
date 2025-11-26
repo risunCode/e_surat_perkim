@@ -60,6 +60,24 @@ class Letter extends Model
     }
 
     /**
+     * Digital signatures for this letter
+     */
+    public function signatures(): HasMany
+    {
+        return $this->hasMany(DocumentSignature::class);
+    }
+
+    /**
+     * Get the latest valid signature
+     */
+    public function latestSignature()
+    {
+        return $this->hasOne(DocumentSignature::class)
+                    ->where('is_valid', true)
+                    ->latest();
+    }
+
+    /**
      * Surat yang menjadi referensi (surat yang dibalas)
      */
     public function referenceTo(): BelongsTo

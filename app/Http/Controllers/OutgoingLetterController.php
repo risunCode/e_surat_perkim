@@ -9,6 +9,7 @@ use App\Models\Classification;
 use App\Models\Letter;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\SignatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,7 @@ class OutgoingLetterController extends Controller
             $query->whereDate('letter_date', '<=', $request->date_to);
         }
 
-        $letters = $query->latest()->paginate(10);
+        $letters = $this->paginateQuery($query->latest(), $request);
         $classifications = Classification::all();
 
         return view('pages.transaction.outgoing.index', compact('letters', 'classifications'));
@@ -125,6 +126,9 @@ class OutgoingLetterController extends Controller
             }
         }
 
+        // Generate digital signature for document integrity
+        app(SignatureService::class)->generateLetterSignature($letter);
+
         // Create notification for all users
         $users = User::where('is_active', true)->get();
         foreach ($users as $user) {
@@ -144,9 +148,10 @@ class OutgoingLetterController extends Controller
 
     public function show(Letter $letter)
     {
-        $letter->load(['user', 'classification', 'attachments', 'referenceTo', 'replies.user']);
+        $letter->load(['user', 'classification', 'attachments', 'referenceTo', 'replies.user', 'latestSignature']);
         $correspondenceChain = $letter->getCorrespondenceChain();
-        return view('pages.transaction.outgoing.show', compact('letter', 'correspondenceChain'));
+        $signature = $letter->latestSignature;
+        return view('pages.transaction.outgoing.show', compact('letter', 'correspondenceChain', 'signature'));
     }
 
     public function edit(Letter $letter)
@@ -208,6 +213,9 @@ class OutgoingLetterController extends Controller
                 ]);
             }
         }
+
+        // Regenerate digital signature after update
+        app(SignatureService::class)->generateLetterSignature($letter);
 
         return redirect()->route('outgoing.index')
             ->with('success', 'Surat keluar berhasil diperbarui.');

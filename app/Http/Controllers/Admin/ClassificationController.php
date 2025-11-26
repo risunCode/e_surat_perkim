@@ -20,7 +20,7 @@ class ClassificationController extends Controller
             });
         }
 
-        $classifications = $query->orderBy('code')->paginate(10);
+        $classifications = $this->paginateQuery($query->orderBy('code'), $request);
 
         return view('pages.admin.classification.index', compact('classifications'));
     }

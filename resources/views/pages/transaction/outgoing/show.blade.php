@@ -69,7 +69,7 @@
                 <div class="flex items-center justify-between p-3 rounded-lg" style="background-color: var(--bg-input);">
                     <div class="flex items-center gap-3 flex-1 min-w-0">
                         @if(in_array($att->extension, ['jpg','jpeg','png','gif']))
-                        <img src="{{ Storage::url($att->full_path) }}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="openOutgoingGallery({{ $index }})">
+                        <img src="{{ route('attachment.serve', $att->id) }}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="openOutgoingGallery({{ $index }})">
                         @else
                         <div class="w-10 h-10 rounded flex items-center justify-center {{ $att->extension == 'pdf' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' }}">
                             <i class="bx {{ $att->extension == 'pdf' ? 'bxs-file-pdf' : 'bx-file' }} text-xl"></i>
@@ -82,14 +82,14 @@
                     </div>
                     <div class="flex gap-1 ml-2">
                         <button onclick="openOutgoingGallery({{ $index }})" class="p-2 rounded-lg hover:opacity-70" style="background-color: var(--bg-card); color: var(--text-secondary);"><i class="bx bx-show"></i></button>
-                        <a href="{{ Storage::url($att->full_path) }}" target="_blank" class="p-2 rounded-lg btn-primary"><i class="bx bx-download"></i></a>
+                        <a href="{{ route('attachment.download', $att->id) }}" target="_blank" class="p-2 rounded-lg btn-primary"><i class="bx bx-download"></i></a>
                     </div>
                 </div>
                 @endforeach
             </div>
             @push('scripts')
             <script>
-                const outgoingFiles = [@foreach($letter->attachments as $att){ url: '{{ Storage::url($att->full_path) }}', name: '{{ $att->filename }}' },@endforeach];
+                const outgoingFiles = [@foreach($letter->attachments as $att){ url: '{{ route('attachment.serve', $att->id) }}', name: '{{ $att->filename }}' },@endforeach];
                 function openOutgoingGallery(index) { openGallery(outgoingFiles, index); }
             </script>
             @endpush
@@ -97,6 +97,36 @@
             <p class="text-center py-6" style="color: var(--text-secondary);"><i class="bx bx-file text-4xl mb-2 block opacity-50"></i>Tidak ada lampiran</p>
             @endif
             </div>
+            
+            <!-- Digital Signature & QR Code -->
+            @if($signature)
+            <div class="rounded-xl p-6 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
+                <h2 class="text-lg font-semibold mb-4" style="color: var(--text-primary);"><i class="bx bx-shield-quarter mr-2"></i>Integritas Dokumen</h2>
+                <div class="text-center">
+                    <div class="inline-block p-3 rounded-lg mb-3" style="background-color: var(--bg-input);">
+                        <canvas id="qr-code" width="120" height="120"></canvas>
+                    </div>
+                    <p class="text-xs mb-2" style="color: var(--text-secondary);">Scan untuk verifikasi</p>
+                    <div class="flex items-center justify-center gap-2 text-xs">
+                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700">
+                            <i class="bx bx-check-circle"></i> Tersertifikasi
+                        </span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t text-left" style="border-color: var(--border-color);">
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="text-xs" style="color: var(--text-secondary);">ID Dokumen:</p>
+                            <button onclick="copyDocumentId('{{ $signature->signature_hash }}')" class="text-xs px-2 py-0.5 rounded hover:opacity-80" style="background-color: var(--bg-input); color: var(--text-secondary);" title="Copy ID">
+                                <i class="bx bx-copy"></i> Copy
+                            </button>
+                        </div>
+                        <code class="text-xs block break-all" style="color: var(--text-primary); line-height: 1.4;">{{ $signature->signature_hash }}</code>
+                        <p class="text-xs mt-2" style="color: var(--text-secondary);">
+                            Signed: {{ $signature->signed_at->format('d/m/Y H:i') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -143,4 +173,36 @@
     </div>
     @endif
 </div>
+
+@if($signature)
+@push('scripts')
+<script src="/js/qrious.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('qr-code');
+    if (canvas && typeof QRious !== 'undefined') {
+        new QRious({
+            element: canvas,
+            value: '{{ $signature->verification_url }}',
+            size: 120,
+            foreground: '#000000',
+            background: '#ffffff'
+        });
+    }
+});
+
+function copyDocumentId(hash) {
+    navigator.clipboard.writeText(hash).then(function() {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 px-4 py-2 rounded-lg text-sm text-white bg-green-600 shadow-lg z-50';
+        toast.innerHTML = '<i class="bx bx-check mr-1"></i> ID Dokumen berhasil disalin!';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }).catch(function(err) {
+        alert('Gagal menyalin: ' + err);
+    });
+}
+</script>
+@endpush
+@endif
 @endsection

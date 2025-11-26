@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'active' => \App\Http\Middleware\CheckUserActive::class,
             'throttle.login' => \App\Http\Middleware\ThrottleLogins::class,

@@ -20,6 +20,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -34,19 +35,60 @@
             <p class="text-gray-500 dark:text-gray-400 mt-1">Sistem Manajemen Surat Elektronik</p>
         </div>
         
-        @if(session('error'))
-            <div class="mb-4 p-4 bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg text-sm">
-                {{ session('error') }}
-            </div>
-        @endif
-        
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/50 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg text-sm">
-                {{ session('success') }}
-            </div>
-        @endif
-        
         @yield('content')
     </div>
+    
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: '{{ session('error') }}',
+                    confirmButtonColor: '#dc2626'
+                });
+            @endif
+            
+            @if(session('auth_required'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Login Diperlukan',
+                    text: 'Silakan login terlebih dahulu untuk mengakses halaman tersebut.',
+                    confirmButtonColor: '#3b82f6'
+                });
+            @endif
+            
+            @if(session('session_expired'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Sesi Berakhir',
+                    text: 'Sesi Anda telah berakhir. Silakan login kembali.',
+                    confirmButtonColor: '#f59e0b'
+                });
+            @endif
+            
+            @if(session('logged_out'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Logout Berhasil',
+                    text: 'Anda telah keluar dari sistem.',
+                    confirmButtonColor: '#22c55e',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            @endif
+            
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: '{{ session('success') }}',
+                    confirmButtonColor: '#22c55e'
+                });
+            @endif
+        });
+    </script>
 </body>
 </html>

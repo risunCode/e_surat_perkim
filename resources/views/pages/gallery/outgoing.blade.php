@@ -96,10 +96,12 @@
                             <div class="flex items-center gap-2">
                                 @foreach($letter->attachments->take(3) as $att)
                                     @if(in_array($att->extension, ['jpg','jpeg','png','gif']))
-                                        <img src="{{ Storage::url($att->full_path) }}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="openGalleryFor{{ $letter->id }}({{ $loop->index }})" title="{{ $att->filename }}">
+                                        <div class="w-10 h-10 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs font-medium" title="{{ $att->filename }}">
+                                            {{ strtoupper($att->extension) }}
+                                        </div>
                                     @else
-                                        <div class="w-10 h-10 rounded flex items-center justify-center cursor-pointer {{ $att->extension == 'pdf' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' }}" onclick="openGalleryFor{{ $letter->id }}({{ $loop->index }})" title="{{ $att->filename }}">
-                                            <i class="bx {{ $att->extension == 'pdf' ? 'bxs-file-pdf' : 'bx-file' }} text-lg"></i>
+                                        <div class="w-10 h-10 rounded flex items-center justify-center text-xs font-medium {{ $att->extension == 'pdf' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' }}" title="{{ $att->filename }}">
+                                            {{ strtoupper($att->extension) }}
                                         </div>
                                     @endif
                                 @endforeach
@@ -112,11 +114,10 @@
                         <td class="px-4 py-3" style="color: var(--text-secondary);">{{ $letter->letter_date?->format('d/m/Y') }}</td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button onclick="openGalleryFor{{ $letter->id }}(0)" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);"><i class="bx bx-show"></i> Preview</button>
                                 <a href="{{ route('outgoing.show', $letter) }}" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);"><i class="bx bx-link-external"></i> Detail</a>
-                                @if($letter->attachments->first())
-                                <a href="{{ Storage::url($letter->attachments->first()->full_path) }}" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs btn-primary"><i class="bx bx-download"></i> Download</a>
-                                @endif
+                                <a href="{{ route('gallery.outgoing.print', $letter->id) }}" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs btn-primary">
+                                    <i class="bx bx-file-text"></i> Transkrip
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -167,6 +168,7 @@ function sortTable(colIndex) {
     
     rows.forEach(row => tbody.appendChild(row));
 }
+
 </script>
 @endpush
 @endsection

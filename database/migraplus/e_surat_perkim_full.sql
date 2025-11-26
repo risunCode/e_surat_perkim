@@ -1,7 +1,7 @@
 -- =====================================================
 -- E-SURAT PERKIM - DATABASE SCHEMA
--- Generated: 25 November 2025
--- Version: 2.3 (File Upload Enhancement + Metadata)
+-- Generated: 26 November 2025
+-- Version: 2.4 (Digital Signatures + Route Updates)
 -- =====================================================
 -- 
 -- Cara Penggunaan:
@@ -22,9 +22,6 @@ CREATE TABLE `users` (
     `email` VARCHAR(255) NOT NULL,
     `email_verified_at` TIMESTAMP NULL DEFAULT NULL,
     `password` VARCHAR(255) NOT NULL,
-    `two_factor_secret` TEXT NULL,
-    `two_factor_recovery_codes` TEXT NULL,
-    `two_factor_confirmed_at` TIMESTAMP NULL DEFAULT NULL,
     `phone` VARCHAR(255) NULL DEFAULT NULL,
     `role` VARCHAR(255) NOT NULL DEFAULT 'staff' COMMENT 'admin, staff',
     `birth_date` DATE NULL DEFAULT NULL,
@@ -328,6 +325,32 @@ CREATE TABLE `configs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- TABLE: document_signatures
+-- =====================================================
+DROP TABLE IF EXISTS `document_signatures`;
+CREATE TABLE `document_signatures` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `letter_id` BIGINT UNSIGNED NOT NULL,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `document_type` VARCHAR(255) NOT NULL COMMENT 'transcript, letter, etc.',
+    `signature_hash` VARCHAR(64) NOT NULL,
+    `content_hash` TEXT NOT NULL,
+    `signed_at` TIMESTAMP NOT NULL,
+    `ip_address` VARCHAR(255) NULL DEFAULT NULL,
+    `user_agent` TEXT NULL DEFAULT NULL,
+    `metadata` JSON NULL DEFAULT NULL,
+    `is_valid` TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at` TIMESTAMP NULL DEFAULT NULL,
+    `updated_at` TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `document_signatures_signature_hash_unique` (`signature_hash`),
+    KEY `document_signatures_signature_hash_is_valid_index` (`signature_hash`, `is_valid`),
+    KEY `document_signatures_letter_id_document_type_index` (`letter_id`, `document_type`),
+    CONSTRAINT `document_signatures_letter_id_foreign` FOREIGN KEY (`letter_id`) REFERENCES `letters` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `document_signatures_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- TABLE: migrations (Laravel)
 -- =====================================================
 DROP TABLE IF EXISTS `migrations`;
@@ -353,13 +376,14 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- END OF SCHEMA
 -- =====================================================
 -- 
--- File ini berisi struktur tabel lengkap v2.3
+-- File ini berisi struktur tabel lengkap v2.4
 -- Fitur baru:
+-- - Digital signatures untuk dokumen (QR code verification)
+-- - Indonesian routes untuk transaksi/galeri
 -- - Status tracking untuk surat (status, is_completed, sent_at, completed_at)
 -- - Data JSON untuk notifications
 -- - File metadata tracking (file_size, mime_type)
 -- - Upload configuration settings (15MB per file, various file types)
--- - Index untuk is_completed
 -- 
 -- Untuk data default, gunakan file terpisah:
 -- - e_surat_perkim_references.sql (kode referral)

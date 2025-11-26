@@ -615,6 +615,16 @@
         });
 
         // Show session messages with SweetAlert
+        @if(session('login_success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Berhasil!',
+                text: 'Selamat datang kembali, {{ auth()->user()->name }}',
+                confirmButtonColor: '#22c55e',
+                timer: 2500,
+                showConfirmButton: false
+            });
+        @endif
         @if(session('success'))
             showSuccess("{{ session('success') }}");
         @endif

@@ -9,13 +9,14 @@
         </div>
         <div class="relative z-10">
             <div class="flex items-center gap-3 mb-4">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">v2.0.0 Stable</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">v2.4.0 Stable</span>
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">🔐 Digital Signatures</span>
                 <span class="px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--bg-input); color: var(--text-secondary);">Laravel 12</span>
                 <span class="px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--bg-input); color: var(--text-secondary);">PHP 8.3</span>
             </div>
             <h1 class="text-4xl font-bold mb-3" style="color: var(--text-primary);">E-Surat Perkim</h1>
             <p class="text-xl mb-6 max-w-2xl" style="color: var(--text-secondary);">
-                Sistem Manajemen Surat Elektronik untuk Dinas Perumahan Rakyat dan Kawasan Permukiman
+                Sistem Manajemen Surat Elektronik dengan <strong>QR Code Verification</strong> & Digital Signatures untuk Dinas Perumahan Rakyat dan Kawasan Permukiman
             </p>
             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium btn-primary">
@@ -46,9 +47,9 @@
             <p class="text-sm" style="color: var(--text-secondary);">Disposisi</p>
         </div>
         <div class="rounded-xl p-5 border text-center" style="background-color: var(--bg-card); border-color: var(--border-color);">
-            <i class="bx bx-user-check text-4xl mb-2" style="color: var(--accent-color);"></i>
-            <p class="text-2xl font-bold" style="color: var(--text-primary);">Multi</p>
-            <p class="text-sm" style="color: var(--text-secondary);">User Support</p>
+            <i class="bx bx-qr-scan text-4xl mb-2" style="color: var(--accent-color);"></i>
+            <p class="text-2xl font-bold" style="color: var(--text-primary);">QR</p>
+            <p class="text-sm" style="color: var(--text-secondary);">Verification</p>
         </div>
     </div>
 
@@ -59,6 +60,20 @@
                 <i class="bx bx-star mr-2"></i>Fitur Utama
             </h2>
             <div class="space-y-3">
+                <div class="flex items-start gap-3 p-3 rounded-lg bg-blue-50" style="border: 1px solid #dbeafe;">
+                    <i class="bx bx-qr-scan text-xl text-blue-600 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium text-blue-900">QR Code Verification</p>
+                        <p class="text-sm text-blue-700">Verifikasi integritas dokumen dengan QR code</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-lg bg-purple-50" style="border: 1px solid #e9d5ff;">
+                    <i class="bx bx-shield-quarter text-xl text-purple-600 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium text-purple-900">Digital Signatures</p>
+                        <p class="text-sm text-purple-700">Tanda tangan digital SHA-256 untuk setiap dokumen</p>
+                    </div>
+                </div>
                 <div class="flex items-start gap-3 p-3 rounded-lg" style="background-color: var(--bg-input);">
                     <i class="bx bx-check-circle text-xl text-green-500 mt-0.5"></i>
                     <div>
@@ -69,36 +84,29 @@
                 <div class="flex items-start gap-3 p-3 rounded-lg" style="background-color: var(--bg-input);">
                     <i class="bx bx-check-circle text-xl text-green-500 mt-0.5"></i>
                     <div>
-                        <p class="font-medium" style="color: var(--text-primary);">Sistem Disposisi</p>
-                        <p class="text-sm" style="color: var(--text-secondary);">Distribusi & tracking disposisi surat</p>
+                        <p class="font-medium" style="color: var(--text-primary);">Cross-Platform Support</p>
+                        <p class="text-sm" style="color: var(--text-secondary);">Windows, Linux, macOS compatible</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-3 p-3 rounded-lg" style="background-color: var(--bg-input);">
                     <i class="bx bx-check-circle text-xl text-green-500 mt-0.5"></i>
                     <div>
-                        <p class="font-medium" style="color: var(--text-primary);">Galeri Dokumen</p>
-                        <p class="text-sm" style="color: var(--text-secondary);">Preview & download lampiran surat</p>
+                        <p class="font-medium" style="color: var(--text-primary);">SweetAlert Integration</p>
+                        <p class="text-sm" style="color: var(--text-secondary);">Interactive notifications & confirmations</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-3 p-3 rounded-lg" style="background-color: var(--bg-input);">
                     <i class="bx bx-check-circle text-xl text-green-500 mt-0.5"></i>
                     <div>
-                        <p class="font-medium" style="color: var(--text-primary);">Agenda & Laporan</p>
-                        <p class="text-sm" style="color: var(--text-secondary);">Cetak buku agenda & laporan bulanan</p>
+                        <p class="font-medium" style="color: var(--text-primary);">Copy Document ID</p>
+                        <p class="text-sm" style="color: var(--text-secondary);">One-click copy dengan toast notification</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-3 p-3 rounded-lg" style="background-color: var(--bg-input);">
                     <i class="bx bx-check-circle text-xl text-green-500 mt-0.5"></i>
                     <div>
-                        <p class="font-medium" style="color: var(--text-primary);">Multi-Theme</p>
-                        <p class="text-sm" style="color: var(--text-secondary);">Light, Dark, Black, dan Pink theme</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-3 p-3 rounded-lg" style="background-color: var(--bg-input);">
-                    <i class="bx bx-check-circle text-xl text-green-500 mt-0.5"></i>
-                    <div>
-                        <p class="font-medium" style="color: var(--text-primary);">Keamanan Tinggi</p>
-                        <p class="text-sm" style="color: var(--text-secondary);">Rate limiting, XSS/SQL injection protection</p>
+                        <p class="font-medium" style="color: var(--text-primary);">Multi-Theme UI</p>
+                        <p class="text-sm" style="color: var(--text-secondary);">Light, Dark, Black, Pink themes</p>
                     </div>
                 </div>
             </div>
@@ -158,11 +166,51 @@
             <h3 class="text-sm font-semibold mt-6 mb-3" style="color: var(--text-secondary);">Libraries & Tools</h3>
             <div class="flex flex-wrap gap-2">
                 <span class="px-3 py-1 rounded-full text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);">Laravel Fortify</span>
+                <span class="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">QRious.js</span>
                 <span class="px-3 py-1 rounded-full text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);">SweetAlert2</span>
                 <span class="px-3 py-1 rounded-full text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);">Boxicons</span>
                 <span class="px-3 py-1 rounded-full text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);">Cropper.js</span>
-                <span class="px-3 py-1 rounded-full text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);">Chart.js</span>
+                <span class="px-3 py-1 rounded-full text-xs bg-purple-100 text-purple-700">SHA-256 Hashing</span>
             </div>
+        </div>
+    </div>
+
+    <!-- QR Code Section -->
+    <div class="rounded-xl p-6 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                <i class="bx bx-qr-scan text-2xl text-blue-600"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold" style="color: var(--text-primary);">QR Code Verification System</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Verifikasi integritas dokumen dengan teknologi blockchain-like</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-lg" style="background-color: var(--bg-input);">
+                <i class="bx bx-shield-quarter text-2xl text-green-500 mb-2"></i>
+                <h3 class="font-medium mb-1" style="color: var(--text-primary);">Digital Signature</h3>
+                <p class="text-sm" style="color: var(--text-secondary);">Setiap dokumen memiliki SHA-256 hash yang unik</p>
+            </div>
+            <div class="p-4 rounded-lg" style="background-color: var(--bg-input);">
+                <i class="bx bx-qr text-2xl text-blue-500 mb-2"></i>
+                <h3 class="font-medium mb-1" style="color: var(--text-primary);">QR Code Generation</h3>
+                <p class="text-sm" style="color: var(--text-secondary);">QR code berisi URL verifikasi untuk validasi</p>
+            </div>
+            <div class="p-4 rounded-lg" style="background-color: var(--bg-input);">
+                <i class="bx bx-check-shield text-2xl text-purple-500 mb-2"></i>
+                <h3 class="font-medium mb-1" style="color: var(--text-primary);">Public Verification</h3>
+                <p class="text-sm" style="color: var(--text-secondary);">Verifikasi tanpa login, cross-platform support</p>
+            </div>
+        </div>
+        
+        <div class="mt-4 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50" style="border: 1px solid #e0e7ff;">
+            <div class="flex items-center gap-2 mb-2">
+                <i class="bx bx-info-circle text-blue-600"></i>
+                <span class="font-medium text-blue-900">Cara Kerja</span>
+            </div>
+            <p class="text-sm text-blue-800">Setiap surat yang dibuat/diupdate akan generate signature unik. QR code di preview dokumen mengarah ke halaman verifikasi publik yang menampilkan metadata dokumen dan status validitas.</p>
         </div>
     </div>
 
@@ -201,34 +249,34 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="rounded-xl p-5 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100">
-                    <span class="text-xl">🛡️</span>
-                </div>
-                <div>
-                    <p class="font-medium" style="color: var(--text-primary);">Secure</p>
-                    <p class="text-xs" style="color: var(--text-secondary);">Protected & Encrypted</p>
-                </div>
-            </div>
-        </div>
-        <div class="rounded-xl p-5 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
-            <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100">
-                    <span class="text-xl">📱</span>
+                    <i class="bx bx-qr-scan text-xl text-blue-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium" style="color: var(--text-primary);">Responsive</p>
-                    <p class="text-xs" style="color: var(--text-secondary);">Desktop & Mobile Ready</p>
+                    <p class="font-medium" style="color: var(--text-primary);">QR Verified</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">Document Integrity Check</p>
                 </div>
             </div>
         </div>
         <div class="rounded-xl p-5 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-100">
-                    <span class="text-xl">🚀</span>
+                    <i class="bx bx-shield-quarter text-xl text-purple-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium" style="color: var(--text-primary);">Fast</p>
-                    <p class="text-xs" style="color: var(--text-secondary);">Optimized Performance</p>
+                    <p class="font-medium" style="color: var(--text-primary);">Digitally Signed</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">SHA-256 Protected</p>
+                </div>
+            </div>
+        </div>
+        <div class="rounded-xl p-5 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100">
+                    <i class="bx bx-devices text-xl text-green-600"></i>
+                </div>
+                <div>
+                    <p class="font-medium" style="color: var(--text-primary);">Cross-Platform</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">Windows, Linux, macOS</p>
                 </div>
             </div>
         </div>

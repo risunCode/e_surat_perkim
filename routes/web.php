@@ -14,6 +14,9 @@ use App\Http\Controllers\Admin\LetterStatusController;
 use App\Http\Controllers\Admin\ReferenceCodeController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\TranscriptController;
+use App\Http\Controllers\DocumentVerificationController;
 use Illuminate\Support\Facades\Route;
 
 // Guest routes
@@ -39,6 +42,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/security-setup', [SecurityQuestionController::class, 'storeSetup'])->name('security.store');
 });
 
+// Document Verification (Public access - no auth required)
+Route::prefix('verify')->group(function () {
+    Route::get('/', [DocumentVerificationController::class, 'index'])->name('document.verification');
+    Route::post('/', [DocumentVerificationController::class, 'check'])->name('document.check');
+    Route::get('/{hash}', [DocumentVerificationController::class, 'verify'])->name('document.verify');
+});
+
 // Authenticated routes (with security check)
 Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->group(function () {
     // Dashboard
@@ -47,38 +57,33 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
     // About
     Route::get('/about', fn() => view('pages.about'))->name('about');
 
-    // Transaction - Incoming Letters
-    Route::prefix('transaction/incoming')->name('incoming.')->group(function () {
+    // Transaksi - Surat Masuk
+    Route::prefix('transaksi/surat-masuk')->name('incoming.')->group(function () {
         Route::get('/', [IncomingLetterController::class, 'index'])->name('index');
-        Route::get('/create', [IncomingLetterController::class, 'create'])->name('create');
+        Route::get('/tambah', [IncomingLetterController::class, 'create'])->name('create');
         Route::post('/', [IncomingLetterController::class, 'store'])->name('store');
         Route::get('/{letter}', [IncomingLetterController::class, 'show'])->name('show');
         Route::get('/{letter}/edit', [IncomingLetterController::class, 'edit'])->name('edit');
         Route::put('/{letter}', [IncomingLetterController::class, 'update'])->name('update');
         Route::delete('/{letter}', [IncomingLetterController::class, 'destroy'])->name('destroy');
-        
-        // Simple completion toggle
-        Route::patch('/{letter}/toggle-completion', [IncomingLetterController::class, 'toggleCompletion'])->name('toggleCompletion');
+        Route::patch('/{letter}/selesai', [IncomingLetterController::class, 'toggleCompletion'])->name('toggleCompletion');
     });
 
-    // Transaction - Outgoing Letters
-    Route::prefix('transaction/outgoing')->name('outgoing.')->group(function () {
+    // Transaksi - Surat Keluar
+    Route::prefix('transaksi/surat-keluar')->name('outgoing.')->group(function () {
         Route::get('/', [OutgoingLetterController::class, 'index'])->name('index');
-        Route::get('/create', [OutgoingLetterController::class, 'create'])->name('create');
+        Route::get('/tambah', [OutgoingLetterController::class, 'create'])->name('create');
         Route::post('/', [OutgoingLetterController::class, 'store'])->name('store');
         Route::get('/{letter}', [OutgoingLetterController::class, 'show'])->name('show');
         Route::get('/{letter}/edit', [OutgoingLetterController::class, 'edit'])->name('edit');
         Route::put('/{letter}', [OutgoingLetterController::class, 'update'])->name('update');
         Route::delete('/{letter}', [OutgoingLetterController::class, 'destroy'])->name('destroy');
-        
-        // Simple completion toggle
-        Route::patch('/{letter}/toggle-completion', [OutgoingLetterController::class, 'toggleCompletion'])->name('toggleCompletion');
+        Route::patch('/{letter}/selesai', [OutgoingLetterController::class, 'toggleCompletion'])->name('toggleCompletion');
     });
 
-
-    // Dispositions
-    Route::prefix('disposition')->name('disposition.')->group(function () {
-        Route::get('/{letter}/create', [DispositionController::class, 'create'])->name('create');
+    // Disposisi
+    Route::prefix('disposisi')->name('disposition.')->group(function () {
+        Route::get('/{letter}/tambah', [DispositionController::class, 'create'])->name('create');
         Route::post('/{letter}', [DispositionController::class, 'store'])->name('store');
         Route::get('/{disposition}/edit', [DispositionController::class, 'edit'])->name('edit');
         Route::put('/{disposition}', [DispositionController::class, 'update'])->name('update');
@@ -87,16 +92,16 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
 
     // Agenda
     Route::prefix('agenda')->name('agenda.')->group(function () {
-        Route::get('/incoming', [AgendaController::class, 'incoming'])->name('incoming');
-        Route::get('/outgoing', [AgendaController::class, 'outgoing'])->name('outgoing');
-        Route::get('/incoming/print', [AgendaController::class, 'printIncoming'])->name('incoming.print');
-        Route::get('/outgoing/print', [AgendaController::class, 'printOutgoing'])->name('outgoing.print');
+        Route::get('/masuk', [AgendaController::class, 'incoming'])->name('incoming');
+        Route::get('/keluar', [AgendaController::class, 'outgoing'])->name('outgoing');
+        Route::get('/masuk/cetak', [AgendaController::class, 'printIncoming'])->name('incoming.print');
+        Route::get('/keluar/cetak', [AgendaController::class, 'printOutgoing'])->name('outgoing.print');
     });
 
-    // Gallery
-    Route::prefix('gallery')->name('gallery.')->group(function () {
-        Route::get('/incoming', [GalleryController::class, 'incoming'])->name('incoming');
-        Route::get('/outgoing', [GalleryController::class, 'outgoing'])->name('outgoing');
+    // Galeri
+    Route::prefix('galeri')->name('gallery.')->group(function () {
+        Route::get('/masuk', [GalleryController::class, 'incoming'])->name('incoming');
+        Route::get('/keluar', [GalleryController::class, 'outgoing'])->name('outgoing');
     });
 
     // Notifications
@@ -115,6 +120,18 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
         Route::post('/photo', [ProfileController::class, 'updatePhoto'])->name('photo');
         Route::post('/deactivate', [ProfileController::class, 'deactivate'])->name('deactivate');
     });
+
+    // File Serving with Cache Headers
+    Route::get('/attachments/{id}', [AttachmentController::class, 'serve'])->name('attachment.serve');
+    Route::get('/attachments/{id}/download', [AttachmentController::class, 'download'])->name('attachment.download');
+    Route::get('/profile-pictures/{filename}', [AttachmentController::class, 'profilePicture'])->name('profile.picture');
+
+    // Letter Transcript Print View
+    Route::get('/transcript/{type}/{id}/print', [TranscriptController::class, 'printView'])->name('transcript.print');
+    
+    // Gallery Preview Pages
+    Route::get('/galeri/masuk/print/{id}', [TranscriptController::class, 'galleryIncomingPreview'])->name('gallery.incoming.print');
+    Route::get('/galeri/keluar/print/{id}', [TranscriptController::class, 'galleryOutgoingPreview'])->name('gallery.outgoing.print');
 
     // Admin routes
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {

@@ -1,7 +1,7 @@
-# E-Surat Perkim v2.0.0 "Shorekeeper"
+# E-Surat Perkim v2.4.0 "Shorekeeper"
 E-Surat Perkim dikembangkan untuk membantu pengelolaan administrasi surat-menyurat secara digital. Aplikasi ini menggantikan proses manual pencatatan surat dengan sistem terintegrasi yang memungkinkan pelacakan surat masuk, surat keluar, disposisi, dan korespondensi dalam satu platform.
 
-Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertimbangkan alur kerja birokrasi, termasuk fitur disposisi berjenjang dan pelacakan status penyelesaian dokumen.
+Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertimbangkan alur kerja birokrasi, termasuk fitur disposisi berjenjang, pelacakan status penyelesaian dokumen, dan **verifikasi integritas dokumen dengan QR code & digital signature**.
 
 <img width="1917" height="971" alt="E-Surat Perkim Dashboard" src="https://github.com/user-attachments/assets/2f9cbcd3-3995-4337-98e6-00be8c2829b7" />
 
@@ -30,7 +30,10 @@ Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertim
 | Database | MySQL 8.0 / MariaDB 10.6+ |
 | Frontend | Blade, TailwindCSS, Vite |
 | Auth | Laravel Fortify |
-| UI Libraries | Boxicons, Cropper.js, SweetAlert2 |
+| UI Libraries | Boxicons, Cropper.js, SweetAlert2, QRious.js |
+| Security | Digital Signatures (SHA-256), QR Code Verification |
+| File Storage | Local storage dengan metadata tracking |
+| Notifications | Real-time dengan SweetAlert integration |
 
 ---
 
@@ -109,6 +112,9 @@ APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8000
 
+# Digital Signature Key (REQUIRED)
+SIGNATURE_KEY=your_random_signature_key_here_32chars
+
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -116,6 +122,8 @@ DB_DATABASE=e_surat_perkim
 DB_USERNAME=root
 DB_PASSWORD=your_password
 ```
+
+**⚠️ PENTING:** Pastikan mengisi `SIGNATURE_KEY` dengan string random 32+ karakter untuk keamanan digital signature!
 
 ### Step 5: Database Setup
 
@@ -160,7 +168,19 @@ mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_references.s
 php artisan storage:link
 ```
 
-### Step 9: Build Assets & Run
+### Step 9: Generate Digital Signatures (Optional)
+
+Untuk surat yang sudah ada, generate digital signature:
+
+```bash
+# Generate signature untuk surat yang belum ada
+php artisan letters:sync-signatures
+
+# Force regenerate semua signature (jika diperlukan)
+php artisan letters:sync-signatures --force
+```
+
+### Step 10: Build Assets & Run
 
 ```bash
 # Build frontend assets
@@ -186,25 +206,67 @@ php artisan serve
 
 ## Fitur
 
+### 📧 Manajemen Surat
+
 | Fitur | Deskripsi |
 |-------|-----------|
 | **Surat Masuk** | Pencatatan surat dari eksternal dengan lampiran & klasifikasi |
 | **Surat Keluar** | Pencatatan surat keluar dengan tracking korespondensi |
 | **Disposisi** | Instruksi internal dengan status & deadline |
-| **Korespondensi** | Pelacakan rantai surat balasan |
-| **Galeri Lampiran** | Preview & download lampiran (gambar, PDF) |
-| **Notifikasi** | Real-time notification untuk surat & disposisi baru |
-| **Multi-Tema** | Light, Dark, Black, Pink |
+| **Korespondensi** | Pelacakan rantai surat balasan & referensi |
+| **Agenda Surat** | Laporan agenda masuk/keluar dengan export PDF |
+| **Status Tracking** | Monitor progress penyelesaian surat |
+
+### 🔐 Digital Security & Verification
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **QR Code Verification** | Verifikasi integritas dokumen dengan QR code |
+| **Digital Signatures** | Tanda tangan digital untuk setiap dokumen |
+| **Document Hash** | SHA-256 hashing untuk validasi konten |
+| **Cross-Platform QR** | QR code berfungsi di Windows, Linux, macOS |
+| **Public Verification** | Verifikasi dokumen tanpa login |
+
+### 📁 File Management
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Multi-Format Upload** | Support PDF, DOC, PPT, gambar (max 15MB/file) |
+| **Galeri Lampiran** | Preview & download lampiran dengan metadata |
+| **File Metadata** | Tracking ukuran file, MIME type, extension |
+| **Secure Storage** | Penyimpanan file dengan akses kontrol |
+
+### 🔔 Notifikasi & UI/UX
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Real-time Notifications** | Notifikasi untuk surat & disposisi baru |
+| **SweetAlert Integration** | Notifikasi login/logout yang interaktif |
+| **Multi-Tema** | Light, Dark, Black, Pink themes |
+| **Responsive Design** | Mobile-friendly di semua perangkat |
+| **Copy Document ID** | One-click copy ID dokumen dengan toast notification |
+
+### 👥 User Management & Admin
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Role-Based Access** | Admin & Staff dengan hak akses berbeda |
+| **Reference Code System** | Registrasi dengan kode referral |
 | **Security Questions** | Reset password tanpa email |
-| **Responsive** | Mobile-friendly design |
+| **User Profile** | Manajemen profil dengan foto |
+| **Admin Panel** | Kelola pengguna, klasifikasi, status, kode referral |
 
-### Keamanan
+### 🔒 Keamanan
 
-- Rate Limiting (5x/menit)
-- Anti Brute Force
-- SQL Injection & XSS Protection
-- CSRF Token
-- Session Security (7 hari)
+- **Rate Limiting** (5x/menit untuk login)
+- **Anti Brute Force** dengan throttling
+- **SQL Injection & XSS Protection**
+- **CSRF Token** protection
+- **Session Security** (7 hari expired)
+- **Input Sanitization** middleware
+- **Security Headers** middleware
+- **Digital Signature** validation
+- **Cross-platform IP Detection**
 
 ---
 
@@ -356,26 +418,7 @@ POST /reset-password-local    - Update password
 3. Commit: `git commit -m 'Tambah fitur baru'`
 4. Push: `git push origin fitur-baru`
 5. Buat Pull Request
-
-## Lisensi
-
-**Source Available - Non-Commercial License**
-
-Kode sumber aplikasi ini tersedia untuk dipelajari dan digunakan dengan ketentuan:
-
-**Diizinkan:**
-- Menggunakan untuk keperluan pribadi
-- Menggunakan untuk keperluan internal organisasi/instansi
-- Memodifikasi sesuai kebutuhan
-- Membuat fork untuk pengembangan sendiri
-
-**Dilarang:**
-- Menjual kode sumber atau aplikasi turunannya
-- Menjadikan bagian dari produk komersial
-- Menyediakan sebagai layanan berbayar (SaaS)
-- Menghapus atau mengubah atribusi pemilik asli
-
-Penggunaan di luar ketentuan di atas memerlukan izin tertulis dari pemilik repository.
+ 
 
 ---
 

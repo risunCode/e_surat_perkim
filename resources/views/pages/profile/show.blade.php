@@ -11,7 +11,7 @@
             <div class="rounded-xl p-6 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
                 <div class="text-center mb-6">
                     @if(auth()->user()->profile_picture)
-                    <img src="{{ Storage::url(auth()->user()->profile_picture) }}" class="w-24 h-24 rounded-full object-cover mx-auto mb-4 ring-4" style="--tw-ring-color: var(--border-color);">
+                    <img src="{{ route('profile.picture', basename(auth()->user()->profile_picture)) }}" class="w-24 h-24 rounded-full object-cover mx-auto mb-4 ring-4" style="--tw-ring-color: var(--border-color);">
                     @else
                     <div class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white mx-auto mb-4" style="background-color: var(--accent-color);">{{ auth()->user()->initials }}</div>
                     @endif

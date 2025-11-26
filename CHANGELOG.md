@@ -3,8 +3,74 @@ All notable changes to E-Surat Perkim will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.0.0] "Shorekeeper" - 2025-11-25
-**"Resonance of Enhanced File Management"**
+## [2.4.0] "Iuno" - 2025-11-26
+**"I watch the moon"** 🌙
+
+### ✨ Added
+- **🔐 Digital Signature System**
+  - QR Code verification untuk setiap dokumen
+  - SHA-256 digital signatures dengan unique hash
+  - Cross-platform IP detection (Windows, Linux, macOS)
+  - Public document verification tanpa login
+  - Signature metadata tracking (IP address, user agent, timestamp)
+
+- **📱 QR Code Integration**
+  - QRious.js library untuk generate QR codes
+  - QR code mengarah ke public verification page
+  - Auto-generate QR code di document preview
+  - Backward compatibility alias `/verify/{hash}` untuk printed documents
+
+- **🎯 SignatureService Architecture**
+  - Centralized signature generation logic
+  - Reduced code duplication across controllers
+  - Signature reuse optimization untuk transcripts
+  - `getOrCreateTranscriptSignature()` method untuk efficiency
+  - Artisan command: `letters:sync-signatures` untuk existing data
+  
+- **🔧 Enhanced Environment Setup**
+  - `SIGNATURE_KEY` requirement untuk digital signatures
+  - Environment validation untuk security
+  - Cross-platform compatibility checks
+
+### 🛠️ Fixed
+- **Exception Namespace Issues**
+  - Fixed `catch (Exception $e)` → `catch (\Exception $e)` in DocumentSignature.php
+  - Prevented runtime errors dari unresolved Exception class
+
+- **Code Quality Improvements**
+  - Eliminated duplicated signature generation methods
+  - Consistent signature logic across all controllers
+  - Improved error handling dan logging
+ 
+### 🔄 Changed
+- **Database Schema Updates**
+  - Added `document_signatures` table dengan foreign keys
+  - Updated `e_surat_perkim_full.sql` to version 2.4
+  - Enhanced signature indexing untuk performance
+
+- **UI/UX Enhancements**  
+  - Updated README.md dengan comprehensive feature list
+  - Enhanced About page dengan QR verification explanation
+  - SweetAlert integration improvements
+  - Copy Document ID dengan toast notifications
+
+### 🔒 Security
+- **Digital Document Integrity**
+  - SHA-256 content hashing untuk tamper detection
+  - IP-based verification tracking
+  - Signature validation middleware
+  - Public verification endpoints dengan rate limiting
+
+### 📚 Documentation
+- **Comprehensive Updates**
+  - Updated tech stack documentation
+  - Added QR code system explanation  
+  - Enhanced setup instructions dengan SIGNATURE_KEY
+  - Featured cross-platform support prominently
+
+---
+
+## [2.0.0] "Shorekeeper" - 2025-11-25 
 
 ### ✨ Added
 - **Enhanced File Upload System**

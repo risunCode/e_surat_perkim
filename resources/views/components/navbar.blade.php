@@ -19,8 +19,56 @@
             </form>
         </div>
         
-        <!-- Right: Theme Toggle, Notifications & User -->
+        <!-- Right: Development Indicator, IP Display, Theme Toggle, Notifications & User -->
         <div class="flex items-center gap-1">
+            @if(config('app.debug'))
+            <!-- Development Badge (Debug Mode Only) -->
+            <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg mr-2 border-2 border-dashed border-orange-400 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20" 
+                 title="Mode Development Aktif&#10;&#10;Untuk menonaktifkan:&#10;1. Edit file .env&#10;2. Ubah APP_DEBUG=false&#10;3. Restart server&#10;&#10;⚠️ Jangan lupa nonaktifkan di production!">
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1">
+                        <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs font-bold text-orange-700 dark:text-orange-400">DEVELOPMENT</span>
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">|</div>
+                    <div class="flex items-center gap-1">
+                        <i class="bx bx-desktop text-xs text-blue-600 dark:text-blue-400"></i>
+                        <span class="text-xs font-mono text-blue-700 dark:text-blue-300">{{ request()->ip() }}</span>
+                    </div>
+                    @php
+                        // Get machine IP (prioritize IPv4)
+                        $machineIp = '127.0.0.1';
+                        if (!empty($_SERVER['SERVER_ADDR']) && filter_var($_SERVER['SERVER_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                            $machineIp = $_SERVER['SERVER_ADDR'];
+                        } else {
+                            try {
+                                $output = shell_exec('ipconfig');
+                                if ($output && preg_match('/Wireless LAN adapter Wi-Fi:.*?IPv4 Address[.\s]*:\s*([0-9.]+)/s', $output, $matches)) {
+                                    if (filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                                        $machineIp = $matches[1];
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                // Keep default
+                            }
+                        }
+                        $port = request()->getPort();
+                    @endphp
+                    <div class="text-xs text-gray-500 dark:text-gray-400">|</div>
+                    <div class="flex items-center gap-1">
+                        <i class="bx bx-wifi text-xs text-green-600 dark:text-green-400"></i>
+                        <span class="text-xs font-mono text-green-700 dark:text-green-300">{{ $machineIp }}:{{ $port }}</span>
+                    </div>
+                </div>
+            </div>
+            @else
+            <!-- Production IP Display (Desktop Only) -->
+            <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg mr-2" style="background-color: var(--bg-input); border: 1px solid var(--border-color);">
+                <i class="bx bx-globe text-sm" style="color: var(--text-secondary);"></i>
+                <span class="text-xs font-mono" style="color: var(--text-primary);" title="IP Address Anda">{{ request()->ip() }}</span>
+            </div>
+            @endif
+            
             <!-- Theme Selector -->
             <div class="relative dropdown-container">
                 <button onclick="toggleDropdown(this)" class="p-2.5 hover:bg-[var(--bg-input)] rounded-xl transition-colors" style="color: var(--text-secondary);" title="Ganti Tema" aria-label="Ganti tema">
@@ -108,7 +156,53 @@
                     <div class="px-4 py-3 border-b" style="border-color: var(--border-color);">
                         <p class="text-sm font-medium" style="color: var(--text-primary);">{{ auth()->user()->name }}</p>
                         <p class="text-xs" style="color: var(--text-secondary);">{{ auth()->user()->email }}</p>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded" style="background-color: var(--bg-input); color: var(--text-secondary);">{{ auth()->user()->role === 'admin' ? 'Administrator' : 'Staff' }}</span>
+                        <div class="mt-2">
+                            <span class="inline-block px-2 py-0.5 text-xs rounded" style="background-color: var(--bg-input); color: var(--text-secondary);">{{ auth()->user()->role === 'admin' ? 'Administrator' : 'Staff' }}</span>
+                            
+                            @if(config('app.debug'))
+                            <!-- Development Info for Mobile -->
+                            <div class="lg:hidden mt-2 p-2 rounded border-2 border-dashed border-orange-400 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20">
+                                <div class="flex items-center gap-1 mb-1">
+                                    <div class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs font-bold text-orange-700 dark:text-orange-400">DEV MODE</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-1 text-xs">
+                                        <i class="bx bx-desktop text-xs text-blue-600 dark:text-blue-400"></i>
+                                        <span class="font-mono text-blue-700 dark:text-blue-300">{{ request()->ip() }}</span>
+                                    </div>
+                                    @php
+                                        $machineIp = '127.0.0.1';
+                                        if (!empty($_SERVER['SERVER_ADDR']) && filter_var($_SERVER['SERVER_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                                            $machineIp = $_SERVER['SERVER_ADDR'];
+                                        } else {
+                                            try {
+                                                $output = shell_exec('ipconfig');
+                                                if ($output && preg_match('/Wireless LAN adapter Wi-Fi:.*?IPv4 Address[.\s]*:\s*([0-9.]+)/s', $output, $matches)) {
+                                                    if (filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                                                        $machineIp = $matches[1];
+                                                    }
+                                                }
+                                            } catch (Exception $e) {
+                                                // Keep default
+                                            }
+                                        }
+                                        $port = request()->getPort();
+                                    @endphp
+                                    <div class="flex items-center gap-1 text-xs">
+                                        <i class="bx bx-wifi text-xs text-green-600 dark:text-green-400"></i>
+                                        <span class="font-mono text-green-700 dark:text-green-300">{{ $machineIp }}:{{ $port }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @else
+                            <!-- IP for Mobile - Production Only -->
+                            <div class="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded text-xs mt-2 w-fit" style="background-color: var(--bg-input); color: var(--text-secondary);" title="IP Address Anda">
+                                <i class="bx bx-globe text-xs"></i>
+                                <span class="font-mono">{{ request()->ip() }}</span>
+                            </div>
+                            @endif
+                        </div>
                     </div>
                     
                     <!-- Akun -->

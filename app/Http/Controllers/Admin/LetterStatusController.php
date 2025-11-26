@@ -16,7 +16,7 @@ class LetterStatusController extends Controller
             $query->where('status', 'like', "%{$request->search}%");
         }
 
-        $statuses = $query->orderBy('id')->paginate(10);
+        $statuses = $this->paginateQuery($query->orderBy('id'), $request);
 
         return view('pages.admin.status.index', compact('statuses'));
     }

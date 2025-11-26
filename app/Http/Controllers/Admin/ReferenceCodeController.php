@@ -27,7 +27,7 @@ class ReferenceCodeController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
-        $codes = $query->latest()->paginate(10);
+        $codes = $this->paginateQuery($query->latest(), $request);
         $roles = Role::options();
 
         return view('pages.admin.reference-code.index', compact('codes', 'roles'));

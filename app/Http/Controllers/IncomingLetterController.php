@@ -9,6 +9,7 @@ use App\Models\Classification;
 use App\Models\Letter;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\SignatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -37,7 +38,7 @@ class IncomingLetterController extends Controller
             $query->where('classification_code', $request->classification);
         }
 
-        $letters = $query->latest()->paginate(10);
+        $letters = $this->paginateQuery($query->latest(), $request);
         $classifications = Classification::all();
 
         return view('pages.transaction.incoming.index', compact('letters', 'classifications'));
@@ -98,6 +99,9 @@ class IncomingLetterController extends Controller
             }
         }
 
+        // Generate digital signature for document integrity
+        app(SignatureService::class)->generateLetterSignature($letter);
+
         // Create notification for all users
         $users = User::where('is_active', true)->get();
         foreach ($users as $user) {
@@ -117,10 +121,11 @@ class IncomingLetterController extends Controller
 
     public function show(Letter $letter)
     {
-        $letter->load(['user', 'classification', 'attachments', 'dispositions.status', 'dispositions.user', 'replies.user']);
+        $letter->load(['user', 'classification', 'attachments', 'dispositions.status', 'dispositions.user', 'replies.user', 'latestSignature']);
         $statuses = \App\Models\LetterStatus::all();
         $correspondenceChain = $letter->getCorrespondenceChain();
-        return view('pages.transaction.incoming.show', compact('letter', 'statuses', 'correspondenceChain'));
+        $signature = $letter->latestSignature;
+        return view('pages.transaction.incoming.show', compact('letter', 'statuses', 'correspondenceChain', 'signature'));
     }
 
     public function edit(Letter $letter)
@@ -183,6 +188,9 @@ class IncomingLetterController extends Controller
                 ]);
             }
         }
+
+        // Regenerate digital signature after update
+        app(SignatureService::class)->generateLetterSignature($letter);
 
         return redirect()->route('incoming.index')
             ->with('success', 'Surat masuk berhasil diperbarui.');
