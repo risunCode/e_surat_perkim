@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\NotificationType;
 use App\Models\Disposition;
 use App\Models\Letter;
 use App\Models\LetterStatus;
-use App\Models\Notification;
-use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,18 +32,8 @@ class DispositionController extends Controller
 
         $disposition = Disposition::create($validated);
 
-        // Create notification for all users
-        $users = User::where('is_active', true)->get();
-        foreach ($users as $user) {
-            Notification::create([
-                'user_id' => $user->id,
-                'type' => NotificationType::DISPOSITION->value,
-                'title' => 'Disposisi Baru',
-                'message' => "Disposisi baru untuk surat {$letter->reference_number}",
-                'link' => route('incoming.show', $letter->id),
-                'icon' => NotificationType::DISPOSITION->icon(),
-            ]);
-        }
+        // Create notification for all users (bulk insert - optimized)
+        app(NotificationService::class)->notifyDisposition($letter->reference_number, $letter->id);
 
         return redirect()->route('incoming.show', $letter->id)
             ->with('success', 'Disposisi berhasil ditambahkan.');

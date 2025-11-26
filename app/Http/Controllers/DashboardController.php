@@ -2,40 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\LetterType;
 use App\Models\Disposition;
 use App\Models\Letter;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
         $today = now()->toDateString();
+        $yesterday = now()->subDay()->toDateString();
         
         $stats = [
             'incoming_today' => Letter::incoming()->whereDate('created_at', $today)->count(),
             'outgoing_today' => Letter::outgoing()->whereDate('created_at', $today)->count(),
             'disposition_today' => Disposition::whereDate('created_at', $today)->count(),
             'active_users' => User::where('is_active', true)->count(),
+            'incoming_change' => $this->calculateChange(Letter::incoming(), $today, $yesterday),
+            'outgoing_change' => $this->calculateChange(Letter::outgoing(), $today, $yesterday),
+            'disposition_change' => $this->calculateDispositionChange($today, $yesterday),
         ];
 
-        $stats['incoming_change'] = $this->calculateChange(Letter::incoming(), 'incoming');
-        $stats['outgoing_change'] = $this->calculateChange(Letter::outgoing(), 'outgoing');
-        $stats['disposition_change'] = $this->calculateDispositionChange();
-
-        // Chart data for the last 7 days
         $chartData = $this->getChartData();
 
         return view('pages.dashboard', compact('stats', 'chartData'));
     }
 
-    private function calculateChange($query, $type)
+    private function calculateChange($query, $today, $yesterday)
     {
-        $today = now()->toDateString();
-        $yesterday = now()->subDay()->toDateString();
-        
         $todayCount = (clone $query)->whereDate('created_at', $today)->count();
         $yesterdayCount = (clone $query)->whereDate('created_at', $yesterday)->count();
         
@@ -46,11 +40,8 @@ class DashboardController extends Controller
         return round((($todayCount - $yesterdayCount) / $yesterdayCount) * 100);
     }
 
-    private function calculateDispositionChange()
+    private function calculateDispositionChange($today, $yesterday)
     {
-        $today = now()->toDateString();
-        $yesterday = now()->subDay()->toDateString();
-        
         $todayCount = Disposition::whereDate('created_at', $today)->count();
         $yesterdayCount = Disposition::whereDate('created_at', $yesterday)->count();
         

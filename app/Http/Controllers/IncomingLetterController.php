@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LetterType;
-use App\Enums\NotificationType;
 use App\Models\Attachment;
 use App\Models\Classification;
 use App\Models\Letter;
-use App\Models\Notification;
-use App\Models\User;
+use App\Services\NotificationService;
 use App\Services\SignatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +16,14 @@ class IncomingLetterController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Letter::incoming()->with(['user', 'classification', 'attachments', 'replies', 'dispositions']);
+        // Optimized eager loading with selective columns for list view
+        $query = Letter::incoming()->with([
+            'user:id,name',
+            'classification:code,name',
+            'attachments:id,letter_id,filename',
+            'replies:id,reference_to',
+            'dispositions:id,letter_id,letter_status'
+        ]);
 
         // Hide completed letters by default (unless requested)
         if (!$request->filled('show_completed')) {
@@ -102,18 +107,8 @@ class IncomingLetterController extends Controller
         // Generate digital signature for document integrity
         app(SignatureService::class)->generateLetterSignature($letter);
 
-        // Create notification for all users
-        $users = User::where('is_active', true)->get();
-        foreach ($users as $user) {
-            Notification::create([
-                'user_id' => $user->id,
-                'type' => NotificationType::INCOMING->value,
-                'title' => 'Surat Masuk Baru',
-                'message' => "Surat masuk baru dengan nomor {$letter->reference_number}",
-                'link' => route('incoming.show', $letter->id),
-                'icon' => NotificationType::INCOMING->icon(),
-            ]);
-        }
+        // Create notification for all users (bulk insert - optimized)
+        app(NotificationService::class)->notifyIncomingLetter($letter->reference_number, $letter->id);
 
         return redirect()->route('incoming.index')
             ->with('success', 'Surat masuk berhasil ditambahkan.');

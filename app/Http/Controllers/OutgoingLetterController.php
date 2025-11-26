@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LetterType;
-use App\Enums\NotificationType;
 use App\Models\Attachment;
 use App\Models\Classification;
 use App\Models\Letter;
-use App\Models\Notification;
-use App\Models\User;
+use App\Services\NotificationService;
 use App\Services\SignatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +16,13 @@ class OutgoingLetterController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Letter::outgoing()->with(['user', 'classification', 'attachments', 'referenceTo']);
+        // Optimized eager loading with selective columns for list view
+        $query = Letter::outgoing()->with([
+            'user:id,name',
+            'classification:code,name',
+            'attachments:id,letter_id,filename',
+            'referenceTo:id,reference_number'
+        ]);
 
         // Hide completed letters by default (unless requested)
         if (!$request->filled('show_completed')) {
@@ -129,18 +133,8 @@ class OutgoingLetterController extends Controller
         // Generate digital signature for document integrity
         app(SignatureService::class)->generateLetterSignature($letter);
 
-        // Create notification for all users
-        $users = User::where('is_active', true)->get();
-        foreach ($users as $user) {
-            Notification::create([
-                'user_id' => $user->id,
-                'type' => NotificationType::OUTGOING->value,
-                'title' => 'Surat Keluar Baru',
-                'message' => "Surat keluar baru dengan nomor {$letter->reference_number}",
-                'link' => route('outgoing.show', $letter->id),
-                'icon' => NotificationType::OUTGOING->icon(),
-            ]);
-        }
+        // Create notification for all users (bulk insert - optimized)
+        app(NotificationService::class)->notifyOutgoingLetter($letter->reference_number, $letter->id);
 
         return redirect()->route('outgoing.index')
             ->with('success', 'Surat keluar berhasil ditambahkan.');

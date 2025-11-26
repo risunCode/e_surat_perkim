@@ -16,6 +16,12 @@
     </div>
 
     <!-- Stats -->
+    @php
+        $items = isset($notifications->showAll) ? $notifications->items : $notifications;
+        $total = isset($notifications->showAll) ? $notifications->totalCount : $notifications->total();
+        $unreadCount = $items->where('is_read', false)->count();
+        $readCount = $items->where('is_read', true)->count();
+    @endphp
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="rounded-xl p-4 border" style="background-color: var(--bg-card); border-color: var(--border-color);">
             <div class="flex items-center gap-3">
@@ -23,7 +29,7 @@
                     <i class="bx bx-bell text-2xl"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $notifications->total() }}</p>
+                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $total }}</p>
                     <p class="text-sm" style="color: var(--text-secondary);">Total Notifikasi</p>
                 </div>
             </div>
@@ -34,7 +40,7 @@
                     <i class="bx bx-envelope text-2xl"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $notifications->where('is_read', false)->count() }}</p>
+                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $unreadCount }}</p>
                     <p class="text-sm" style="color: var(--text-secondary);">Belum Dibaca</p>
                 </div>
             </div>
@@ -45,7 +51,7 @@
                     <i class="bx bx-check-circle text-2xl"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $notifications->where('is_read', true)->count() }}</p>
+                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $readCount }}</p>
                     <p class="text-sm" style="color: var(--text-secondary);">Sudah Dibaca</p>
                 </div>
             </div>
@@ -53,23 +59,36 @@
     </div>
 
     <!-- Filter & Sort -->
-    <div class="flex items-center gap-3 flex-wrap">
+    <div class="flex items-center gap-3 flex-wrap justify-between">
+        <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex items-center gap-2">
+                <span class="text-sm" style="color: var(--text-secondary);">Filter:</span>
+                <select id="statusFilter" onchange="filterTable()" aria-label="Filter status" class="px-3 py-2 rounded-lg border text-sm focus:outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);">
+                    <option value="all">Semua Status</option>
+                    <option value="unread">Baru (Belum Dibaca)</option>
+                    <option value="read">Sudah Dibaca</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm" style="color: var(--text-secondary);">Urutkan:</span>
+                <select id="sortOrder" onchange="sortTable()" aria-label="Urutkan" class="px-3 py-2 rounded-lg border text-sm focus:outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);">
+                    <option value="newest">Terbaru</option>
+                    <option value="oldest">Terlama</option>
+                </select>
+            </div>
+            <span id="resultCount" class="text-sm" style="color: var(--text-secondary);"></span>
+        </div>
+        
+        <!-- Per Page -->
         <div class="flex items-center gap-2">
-            <span class="text-sm" style="color: var(--text-secondary);">Filter:</span>
-            <select id="statusFilter" onchange="filterTable()" aria-label="Filter status" class="px-3 py-2 rounded-lg border text-sm focus:outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);">
-                <option value="all">Semua Status</option>
-                <option value="unread">Baru (Belum Dibaca)</option>
-                <option value="read">Sudah Dibaca</option>
+            <span class="text-sm" style="color: var(--text-secondary);">Tampilkan:</span>
+            <select onchange="window.location.href='{{ route('notifications.index') }}?per_page=' + this.value" class="px-3 py-2 rounded-lg border text-sm focus:outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);">
+                <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+                <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
             </select>
         </div>
-        <div class="flex items-center gap-2">
-            <span class="text-sm" style="color: var(--text-secondary);">Urutkan:</span>
-            <select id="sortOrder" onchange="sortTable()" aria-label="Urutkan" class="px-3 py-2 rounded-lg border text-sm focus:outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);">
-                <option value="newest">Terbaru</option>
-                <option value="oldest">Terlama</option>
-            </select>
-        </div>
-        <span id="resultCount" class="text-sm" style="color: var(--text-secondary);"></span>
     </div>
 
     <!-- Table -->
@@ -89,7 +108,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y" style="border-color: var(--border-color);" id="notifBody">
-                @forelse($notifications as $notif)
+                @forelse($items as $notif)
                 <tr class="hover:opacity-80 notif-row" data-status="{{ $notif->is_read ? 'read' : 'unread' }}" data-date="{{ $notif->created_at->timestamp }}">
                     <td class="px-4 py-4">
                         @if(!$notif->is_read)
@@ -202,8 +221,11 @@
     </script>
     @endpush
 
-    @if($notifications->hasPages())
-    <div class="mt-4">{{ $notifications->links() }}</div>
+    <!-- Pagination -->
+    @if(is_object($notifications) && method_exists($notifications, 'hasPages') && $notifications->hasPages())
+    <div class="flex justify-center">
+        {{ $notifications->links() }}
+    </div>
     @endif
 </div>
 @endsection
