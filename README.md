@@ -271,6 +271,19 @@ php artisan serve
 
 ---
 
+## Database Structure :HOEEEEEEEEK
+
+<img width="1886" height="860" alt="Database ER Diagram - E-Surat Perkim" src="https://github.com/user-attachments/assets/a71a62a7-40c4-4eda-9a12-810fce0f4f4c" />
+
+**Database Schema Overview:**
+- **🗂️ Core Tables:** users, letters, attachments, dispositions
+- **🔗 Relations:** Foreign key relationships dengan cascade delete  
+- **🔐 Security:** document_signatures untuk QR verification
+- **📊 Metadata:** Comprehensive tracking untuk audit trail
+- **⚙️ Configuration:** Dynamic settings via configs table
+
+---
+
 ## Production Deployment
 
 ### 1. Build Assets
