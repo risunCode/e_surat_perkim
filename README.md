@@ -3,7 +3,9 @@ E-Surat Perkim dikembangkan untuk membantu pengelolaan administrasi surat-menyur
 
 Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertimbangkan alur kerja birokrasi, termasuk fitur disposisi berjenjang, pelacakan status penyelesaian dokumen, dan **verifikasi integritas dokumen dengan QR code & digital signature**.
 
-<img width="1917" height="971" alt="E-Surat Perkim Dashboard" src="https://github.com/user-attachments/assets/2f9cbcd3-3995-4337-98e6-00be8c2829b7" />
+<img width="1919" height="964" alt="image" src="https://github.com/user-attachments/assets/ae43e73b-d498-43c2-8932-530489cb74a4" />
+<img width="1919" height="910" alt="image" src="https://github.com/user-attachments/assets/d738f0c5-9085-40b4-b6ef-3a6574e1792c" />
+
 
 ---
 
