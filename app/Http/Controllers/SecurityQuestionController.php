@@ -138,11 +138,16 @@ class SecurityQuestionController extends Controller
         }
 
         $user = User::where('email', $email)->first();
+        
+        if (!$user) {
+            return redirect()->route('password.request');
+        }
+        
         $questions = self::getQuestions();
 
         // Handle custom questions
         $questionText = 'Pertanyaan Keamanan';
-        if (str_starts_with($user->security_question, 'custom:')) {
+        if ($user->security_question && str_starts_with($user->security_question, 'custom:')) {
             $questionText = substr($user->security_question, 7); // Remove 'custom:' prefix
         } else {
             $questionText = $questions[$user->security_question] ?? 'Pertanyaan Keamanan';
