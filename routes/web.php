@@ -19,22 +19,22 @@ use App\Http\Controllers\TranscriptController;
 use App\Http\Controllers\DocumentVerificationController;
 use Illuminate\Support\Facades\Route;
 
-// Guest routes
+// Guest routes (auth only)
 Route::middleware('guest')->group(function () {
     // Unified auth page
     Route::get('/auth', function () {
         $mode = request('mode', 'login');
         return view('pages.auth.index', ['mode' => $mode]);
     })->name('auth');
-    
-    // Password Reset (Local - Security Questions)
-    Route::get('/forgot-password', [SecurityQuestionController::class, 'forgotPassword'])->name('password.request');
-    Route::post('/forgot-password', [SecurityQuestionController::class, 'verifyEmail'])->name('password.verify-email');
-    Route::get('/verify-security', [SecurityQuestionController::class, 'showSecurityForm'])->name('password.security');
-    Route::post('/verify-security', [SecurityQuestionController::class, 'verifySecurity'])->name('password.verify-security');
-    Route::get('/reset-password', [SecurityQuestionController::class, 'showResetForm'])->name('password.reset.form');
-    Route::post('/reset-password', [SecurityQuestionController::class, 'resetPassword'])->name('password.update.local');
 });
+
+// Password Reset (Local - Security Questions) - Allow both guest & authenticated
+Route::get('/forgot-password', [SecurityQuestionController::class, 'forgotPassword'])->name('password.request');
+Route::post('/forgot-password', [SecurityQuestionController::class, 'verifyEmail'])->name('password.verify-email');
+Route::get('/verify-security', [SecurityQuestionController::class, 'showSecurityForm'])->name('password.security');
+Route::post('/verify-security', [SecurityQuestionController::class, 'verifySecurity'])->name('password.verify-security');
+Route::get('/reset-password', [SecurityQuestionController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('/reset-password', [SecurityQuestionController::class, 'resetPassword'])->name('password.update.local');
 
 // Security Setup (must be authenticated but not yet setup)
 Route::middleware('auth')->group(function () {
@@ -117,11 +117,12 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
         Route::get('/', [ProfileController::class, 'show'])->name('show');
         Route::put('/', [ProfileController::class, 'update'])->name('update');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+        Route::put('/security', [ProfileController::class, 'updateSecurity'])->name('security');
         Route::post('/photo', [ProfileController::class, 'updatePhoto'])->name('photo');
         Route::post('/deactivate', [ProfileController::class, 'deactivate'])->name('deactivate');
     });
 
-    // File Serving with Cache Headers
+    // File Serving with Cache Headers (Auth Protected)
     Route::get('/attachments/{id}', [AttachmentController::class, 'serve'])->name('attachment.serve');
     Route::get('/attachments/{id}/download', [AttachmentController::class, 'download'])->name('attachment.download');
     Route::get('/profile-pictures/{filename}', [AttachmentController::class, 'profilePicture'])->name('profile.picture');

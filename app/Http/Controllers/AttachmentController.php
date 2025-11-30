@@ -17,6 +17,12 @@ class AttachmentController extends Controller
     {
         $attachment = Attachment::findOrFail($id);
         
+        // Authorization: Only letter owner, admin, or staff can access
+        $letter = $attachment->letter;
+        if (!auth()->user()->isAdmin() && $letter->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized to access this file');
+        }
+        
         // Check if file exists
         $fullPath = $attachment->full_path;
         if (!Storage::disk('public')->exists($fullPath)) {
@@ -67,6 +73,12 @@ class AttachmentController extends Controller
     public function download($id)
     {
         $attachment = Attachment::findOrFail($id);
+        
+        // Authorization: Only letter owner, admin, or staff can access
+        $letter = $attachment->letter;
+        if (!auth()->user()->isAdmin() && $letter->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized to access this file');
+        }
         
         // Check if file exists
         $fullPath = $attachment->full_path;

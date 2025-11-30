@@ -67,15 +67,11 @@ class DocumentSignature extends Model
     }
 
     /**
-     * Get verification URL with machine IP
+     * Get verification URL using APP_URL
      */
     public function getVerificationUrlAttribute(): string
     {
-        $machineIp = $this->getMachineIp();
-        $port = request()->getPort();
-        $protocol = request()->isSecure() ? 'https' : 'http';
-        
-        return $protocol . '://' . $machineIp . ':' . $port . '/verify/' . $this->signature_hash;
+        return config('app.url') . '/verify/' . $this->signature_hash;
     }
 
     /**

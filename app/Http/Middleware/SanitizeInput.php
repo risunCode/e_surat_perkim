@@ -10,16 +10,17 @@ class SanitizeInput
 {
     /**
      * Dangerous patterns that might indicate SQL injection or XSS.
+     * Reduced false positives, focused on actual threats.
      */
     protected array $dangerousPatterns = [
-        '/(\%27)|(\')|(\-\-)|(\%23)|(#)/i',  // SQL injection basics
-        '/((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))/i', // SQL injection
-        '/\w*((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))/i', // SQL OR
-        '/((\%3C)|<)((\%2F)|\/)*[a-z0-9\%]+((\%3E)|>)/i', // XSS tags
-        '/((\%3C)|<)((\%69)|i|(\%49))((\%6D)|m|(\%4D))((\%67)|g|(\%47))/i', // XSS img
+        '/<script[^>]*>.*?<\/script>/is', // Script tags
         '/javascript\s*:/i', // JavaScript protocol
-        '/vbscript\s*:/i', // VBScript protocol
-        '/on\w+\s*=/i', // Event handlers
+        '/vbscript\s*:/i', // VBScript protocol  
+        '/on(click|load|error|mouse)\s*=/i', // Common event handlers
+        '/(union\s+select|drop\s+table|insert\s+into)/i', // SQL injection
+        '/(\-\-\s|\/\*|\*\/)/i', // SQL comments
+        '/<iframe[^>]*>/i', // Iframe tags
+        '/<object[^>]*>/i', // Object tags
     ];
 
     /**

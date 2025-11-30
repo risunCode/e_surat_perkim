@@ -11,6 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust ALL proxies and ALL headers for ngrok/reverse proxy
+        $middleware->trustProxies(
+            at: '*',
+            headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+                     \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+                     \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+                     \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO |
+                     \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
+        );
+        
         $middleware->alias([
             'auth' => \App\Http\Middleware\Authenticate::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
@@ -18,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle.login' => \App\Http\Middleware\ThrottleLogins::class,
         ]);
 
-        // Global security middlewares
+        // Global security middlewares (CheckUserActive only for authenticated)
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\SanitizeInput::class,

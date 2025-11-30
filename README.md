@@ -1,91 +1,64 @@
-# E-Surat Perkim v2.4.0 "Iuno, i watch the moon"
-E-Surat Perkim dikembangkan untuk membantu pengelolaan administrasi surat-menyurat secara digital. Aplikasi ini menggantikan proses manual pencatatan surat dengan sistem terintegrasi yang memungkinkan pelacakan surat masuk, surat keluar, disposisi, dan korespondensi dalam satu platform.
+# E-Surat Perkim v2.0.1 "Optimized Shorekeeper"
 
-Sistem ini dirancang khusus untuk kebutuhan instansi pemerintah dengan mempertimbangkan alur kerja birokrasi, termasuk fitur disposisi berjenjang, pelacakan status penyelesaian dokumen, dan **verifikasi integritas dokumen dengan QR code & digital signature**.
+> *Performance & UX Refined* — Sistem Manajemen Surat Digital untuk Instansi Pemerintah
 
-<img width="1919" height="964" alt="image" src="https://github.com/user-attachments/assets/ae43e73b-d498-43c2-8932-530489cb74a4" />
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 12">
+  <img src="https://img.shields.io/badge/PHP-8.3+-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3+">
+  <img src="https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="TailwindCSS">
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
+</p>
 
+E-Surat Perkim adalah aplikasi manajemen surat-menyurat digital yang menggantikan proses manual pencatatan surat dengan sistem terintegrasi. Dirancang khusus untuk instansi pemerintah dengan fitur disposisi berjenjang, pelacakan korespondensi, dan **verifikasi dokumen via QR Code & Digital Signature**.
+
+<img width="100%" alt="E-Surat Perkim Dashboard" src="https://github.com/user-attachments/assets/ae43e73b-d498-43c2-8932-530489cb74a4" />
 
 ---
 
-## Daftar Isi
+## 📋 Daftar Isi
 
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
+- [Tech Stack](#-tech-stack)
+- [Prerequisites](#-prerequisites)
 - [Quick Start](#-quick-start)
-- [Default Login](#default-login)
-- [Fitur](#fitur)
-- [Production Deployment](#production-deployment)
-- [LAN Hosting](#lan-hosting-opsional)
-- [Referensi Tambahan](#referensi-tambahan)
-- [Lisensi](#lisensi)
+- [Default Login](#-default-login)
+- [Fitur Lengkap](#-fitur-lengkap)
+- [Project Structure](#-project-structure)
+- [Database Schema](#-database-schema)
+- [Production Deployment](#-production-deployment)
+- [Ngrok Deployment](#-ngrok-deployment)
+- [LAN Hosting](#-lan-hosting)
+- [Artisan Commands](#-artisan-commands)
+- [Kontribusi](#-kontribusi)
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
-| Komponen | Teknologi |
-|----------|-----------|
-| Framework | Laravel 12 |
-| PHP | 8.3+ |
-| Database | MySQL 8.0 / MariaDB 10.6+ |
-| Frontend | Blade, TailwindCSS, Vite |
-| Auth | Laravel Fortify |
-| UI Libraries | Boxicons, Cropper.js, SweetAlert2, QRious.js |
-| Security | Digital Signatures (SHA-256), QR Code Verification |
-| File Storage | Local storage dengan metadata tracking |
-| Notifications | Real-time dengan SweetAlert integration |
+| Layer | Technology |
+|-------|------------|
+| **Backend** | Laravel 12, PHP 8.3+ |
+| **Database** | MySQL 8.0 / MariaDB 10.6+ |
+| **Frontend** | Blade, TailwindCSS 3.x, Vite |
+| **Authentication** | Laravel Fortify |
+| **UI Components** | Boxicons, SweetAlert2, Cropper.js, QRious.js |
+| **Security** | SHA-256 Digital Signatures, QR Verification |
+| **File Storage** | Local disk dengan metadata tracking |
 
 ---
 
-## Prerequisites
+## 📦 Prerequisites
 
 Pastikan sudah terinstall:
 
-- **PHP 8.3+**
-- **Composer 2.x**
-- **Node.js 18+** & NPM
-- **MySQL 8.0** / MariaDB 10.6+
-- **Git**
+| Software | Versi Minimum |
+|----------|---------------|
+| PHP | 8.3+ |
+| Composer | 2.x |
+| Node.js | 18+ |
+| MySQL | 8.0 / MariaDB 10.6+ |
+| Git | Latest |
 
----
-
-## Quick Start
-
-Ikuti langkah-langkah berikut secara berurutan untuk menjalankan aplikasi di lokal.
-
-### Step 1: Clone Repository
-
-```bash
-git clone <repository-url>
-cd e_surat_perkim
-```
-
-### Step 2: Install Dependencies
-
-```bash
-composer install
-npm install
-```
-
-### Step 3: Setup Local Server
-
-**Laragon v6 (Recommended)** - Versi terakhir yang gratis
-
-1. Download [Laragon Full](https://laragon.org/download/) versi 6.x
-2. Install dan jalankan Laragon
-3. Klik **Start All** untuk menjalankan Apache/Nginx + MySQL
-
-**XAMPP (Alternatif)**
-
-1. Download [XAMPP](https://www.apachefriends.org/) dengan PHP 8.3+
-2. Jalankan XAMPP Control Panel
-3. Start **Apache** dan **MySQL**
-
-#### Aktifkan PHP Extensions
-
-Pastikan extensions berikut aktif di `php.ini`:
-
+### PHP Extensions Required
 ```ini
 extension=fileinfo
 extension=gd
@@ -95,17 +68,36 @@ extension=pdo_mysql
 extension=zip
 ```
 
-> **Laragon:** Menu → PHP → Extensions → centang yang diperlukan
-> **XAMPP:** Edit `php.ini` di `C:\xampp\php\php.ini`, hapus `;` di depan extension
+---
 
-### Step 4: Environment Setup
+## 🚀 Quick Start
+
+### 1. Clone & Install
 
 ```bash
-cp .env.example .env
-php artisan key:generate
+# Clone repository
+git clone https://github.com/your-repo/e-surat-perkim.git
+cd e-surat-perkim
+
+# Install dependencies
+composer install
+npm install
 ```
 
-Edit file `.env`:
+### 2. Environment Setup
+
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Generate signature key (untuk digital signature)
+php artisan signature:generate
+```
+
+### 3. Configure `.env`
 
 ```env
 APP_NAME="E-Surat Perkim"
@@ -113,9 +105,10 @@ APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8000
 
-# Digital Signature Key (REQUIRED)
-SIGNATURE_KEY=your_random_signature_key_here_32chars
+# Digital Signature (REQUIRED - 32+ chars)
+SIGNATURE_KEY=your_random_signature_key_here_minimum_32_characters
 
+# Database
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -124,66 +117,28 @@ DB_USERNAME=root
 DB_PASSWORD=your_password
 ```
 
-**⚠️ PENTING:** Pastikan mengisi `SIGNATURE_KEY` dengan string random 32+ karakter untuk keamanan digital signature!
-
-### Step 5: Database Setup
-
-**Pilih salah satu opsi:**
-
-#### Opsi A - Via Migration (Recommended untuk Development)
+### 4. Database Setup
 
 ```bash
+# Buat database terlebih dahulu di MySQL
+# CREATE DATABASE e_surat_perkim;
+
+# Jalankan migration & seeder
 php artisan migrate
 php artisan db:seed
-```
 
-#### Opsi B - Via SQL File (Fresh Install)
-
-```bash
-# Buat database
-mysql -u root -p -e "CREATE DATABASE e_surat_perkim"
-
-# Import struktur tabel
+# Atau gunakan SQL file (alternatif)
 mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_full.sql
-```
-
-### Step 6: Tambah Admin Pertama
-
-```bash
 mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_firstadmin.sql
-```
-
-### Step 7: Kode Referral (Opsional)
-
-Untuk mengaktifkan registrasi user baru:
-
-```bash
 mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_references.sql
 ```
 
-> Kode default: `ADMIN2025` (admin, max 5x), `STAFF2025` (staff, unlimited)
-
-### Step 8: Storage Link
+### 5. Storage & Build
 
 ```bash
+# Create storage link
 php artisan storage:link
-```
 
-### Step 9: Generate Digital Signatures (Optional)
-
-Untuk surat yang sudah ada, generate digital signature:
-
-```bash
-# Generate signature untuk surat yang belum ada
-php artisan letters:sync-signatures
-
-# Force regenerate semua signature (jika diperlukan)
-php artisan letters:sync-signatures --force
-```
-
-### Step 10: Build Assets & Run
-
-```bash
 # Build frontend assets
 npm run build
 
@@ -191,127 +146,156 @@ npm run build
 php artisan serve
 ```
 
-**Akses:** http://127.0.0.1:8000
-
-> **Development Mode:** Jika ingin hot-reload saat develop, jalankan `npm run dev` di terminal terpisah (bukan `npm run build`).
+**🎉 Akses:** http://127.0.0.1:8000
 
 ---
 
-## Default Login
+## 🔑 Default Login
 
 | Email | Password | Role |
 |-------|----------|------|
-| admin@perkim.go.id | perkim2025x | Admin |
+| `admin@perkim.go.id` | `perkim2025x` | Administrator |
+
+**Reference Codes untuk Registrasi:**
+| Code | Role | Usage |
+|------|------|-------|
+| `ADMIN2025` | Admin | Max 5x |
+| `STAFF2025` | Staff | Unlimited |
 
 ---
 
-## Fitur
+## ✨ Fitur Lengkap
 
 ### 📧 Manajemen Surat
+- **Surat Masuk** — Input surat dengan lampiran, klasifikasi, agenda number
+- **Surat Keluar** — Tracking korespondensi dengan reply chain
+- **Disposisi** — Instruksi internal dengan status & deadline
+- **Korespondensi** — Pelacakan rantai surat balasan
+- **Agenda** — Laporan agenda dengan cetak PDF
+- **Toggle Completion** — Tandai surat selesai/belum
 
-| Fitur | Deskripsi |
-|-------|-----------|
-| **Surat Masuk** | Pencatatan surat dari eksternal dengan lampiran & klasifikasi |
-| **Surat Keluar** | Pencatatan surat keluar dengan tracking korespondensi |
-| **Disposisi** | Instruksi internal dengan status & deadline |
-| **Korespondensi** | Pelacakan rantai surat balasan & referensi |
-| **Agenda Surat** | Laporan agenda masuk/keluar dengan export PDF |
-| **Status Tracking** | Monitor progress penyelesaian surat |
-
-### 🔐 Digital Security & Verification
-
-| Fitur | Deskripsi |
-|-------|-----------|
-| **QR Code Verification** | Verifikasi integritas dokumen dengan QR code |
-| **Digital Signatures** | Tanda tangan digital untuk setiap dokumen |
-| **Document Hash** | SHA-256 hashing untuk validasi konten |
-| **Cross-Platform QR** | QR code berfungsi di Windows, Linux, macOS |
-| **Public Verification** | Verifikasi dokumen tanpa login |
+### 🔐 Security & Verification
+- **Digital Signature** — SHA-256 untuk setiap dokumen
+- **QR Code** — Verifikasi publik tanpa login
+- **Reference Codes** — Registrasi dengan kode referral
+- **Security Questions** — Reset password tanpa email
+- **Rate Limiting** — 5x/menit untuk login
+- **Input Sanitization** — XSS & SQL Injection protection
 
 ### 📁 File Management
+- **Multi-Format** — PDF, DOC, DOCX, PPT, PPTX, TXT, Images
+- **Max Upload** — 15MB per file
+- **Galeri** — Preview & download dengan metadata
+- **Secure Storage** — Akses kontrol per user
 
-| Fitur | Deskripsi |
-|-------|-----------|
-| **Multi-Format Upload** | Support PDF, DOC, PPT, gambar (max 15MB/file) |
-| **Galeri Lampiran** | Preview & download lampiran dengan metadata |
-| **File Metadata** | Tracking ukuran file, MIME type, extension |
-| **Secure Storage** | Penyimpanan file dengan akses kontrol |
+### 🎨 UI/UX
+- **Multi-Theme** — Light, Dark, Black, Pink
+- **Real-time Notifications** — SweetAlert2 integration
+- **Responsive** — Mobile-friendly design
+- **Copy Document ID** — One-click copy dengan toast
 
-### 🔔 Notifikasi & UI/UX
-
-| Fitur | Deskripsi |
-|-------|-----------|
-| **Real-time Notifications** | Notifikasi untuk surat & disposisi baru |
-| **SweetAlert Integration** | Notifikasi login/logout yang interaktif |
-| **Multi-Tema** | Light, Dark, Black, Pink themes |
-| **Responsive Design** | Mobile-friendly di semua perangkat |
-| **Copy Document ID** | One-click copy ID dokumen dengan toast notification |
-
-### 👥 User Management & Admin
-
-| Fitur | Deskripsi |
-|-------|-----------|
-| **Role-Based Access** | Admin & Staff dengan hak akses berbeda |
-| **Reference Code System** | Registrasi dengan kode referral |
-| **Security Questions** | Reset password tanpa email |
-| **User Profile** | Manajemen profil dengan foto |
-| **Admin Panel** | Kelola pengguna, klasifikasi, status, kode referral |
-
-### 🔒 Keamanan
-
-- **Rate Limiting** (5x/menit untuk login)
-- **Anti Brute Force** dengan throttling
-- **SQL Injection & XSS Protection**
-- **CSRF Token** protection
-- **Session Security** (7 hari expired)
-- **Input Sanitization** middleware
-- **Security Headers** middleware
-- **Digital Signature** validation
-- **Cross-platform IP Detection**
+### 👥 User Management
+- **Roles** — Admin (full) & Staff (limited)
+- **Profile** — Foto profil, password management
+- **Admin Panel** — Kelola users, klasifikasi, status, settings
 
 ---
 
-## Database Structure :HOEEEEEEEEK
+## 📂 Project Structure
 
-<img width="1886" height="860" alt="Database ER Diagram - E-Surat Perkim" src="https://github.com/user-attachments/assets/a71a62a7-40c4-4eda-9a12-810fce0f4f4c" />
-
-**Database Schema Overview:**
-- **🗂️ Core Tables:** users, letters, attachments, dispositions
-- **🔗 Relations:** Foreign key relationships dengan cascade delete  
-- **🔐 Security:** document_signatures untuk QR verification
-- **📊 Metadata:** Comprehensive tracking untuk audit trail
-- **⚙️ Configuration:** Dynamic settings via configs table
-
----
-
-## Production Deployment
-
-### 1. Build Assets
-
-```bash
-npm run build
+```
+e-surat-perkim/
+├── app/
+│   ├── Console/Commands/       # Artisan commands
+│   ├── Enums/                  # Role, LetterType, NotificationType
+│   ├── Http/
+│   │   ├── Controllers/        # Main controllers
+│   │   │   └── Admin/          # Admin-only controllers
+│   │   └── Middleware/         # Custom middleware
+│   ├── Models/                 # Eloquent models
+│   └── Services/               # Business logic services
+├── database/
+│   ├── migrations/             # Database migrations
+│   ├── migraplus/              # SQL files for quick setup
+│   └── seeders/                # Data seeders
+├── resources/
+│   ├── css/                    # TailwindCSS
+│   ├── js/                     # JavaScript
+│   └── views/                  # Blade templates
+├── routes/
+│   └── web.php                 # Web routes
+└── .zencoder/rules/            # AI coding rules
 ```
 
-### 2. Konfigurasi Environment
+### Key Files
 
-Edit `.env`:
+| File | Description |
+|------|-------------|
+| `app/Models/Letter.php` | Surat dengan korespondensi chain |
+| `app/Models/Disposition.php` | Disposisi surat |
+| `app/Models/DocumentSignature.php` | Digital signature & QR |
+| `app/Services/SignatureService.php` | Signature generation |
+| `app/Services/NotificationService.php` | Notification broadcast |
+| `bootstrap/app.php` | Middleware & proxy config |
 
-```env
+---
+
+## 🗄 Database Schema
+
+```
+┌─────────────┐     ┌─────────────────┐     ┌──────────────┐
+│    users    │────<│     letters     │────<│ dispositions │
+└─────────────┘     └─────────────────┘     └──────────────┘
+                           │  │
+                           │  └────<┌─────────────┐
+                           │        │ attachments │
+                           │        └─────────────┘
+                           │
+                           └────<┌────────────────────┐
+                                 │ document_signatures│
+                                 └────────────────────┘
+
+┌─────────────────┐     ┌───────────────┐     ┌─────────────────┐
+│ classifications │────<│    letters    │     │ letter_statuses │
+└─────────────────┘     └───────────────┘     └─────────────────┘
+                                                      │
+                                                      └────<┌──────────────┐
+                                                            │ dispositions │
+                                                            └──────────────┘
+
+┌─────────────────┐     ┌───────────────────────┐     ┌─────────────┐
+│ reference_codes │────<│ reference_code_usage  │>────│    users    │
+└─────────────────┘     └───────────────────────┘     └─────────────┘
+```
+
+<img width="100%" alt="Database ER Diagram" src="https://github.com/user-attachments/assets/a71a62a7-40c4-4eda-9a12-810fce0f4f4c" />
+
+---
+
+## 🌐 Production Deployment
+
+### Standard Production
+
+```bash
+# 1. Set environment
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://yourdomain.com
-```
 
-### 3. Optimize Laravel
+# 2. Build assets
+npm run build
 
-```bash
+# 3. Optimize Laravel
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan optimize
+
+# 4. Sync signatures (jika ada data existing)
+php artisan letters:sync-signatures
 ```
 
-### 4. PHP Settings (php.ini)
+### PHP Settings (php.ini)
 
 ```ini
 upload_max_filesize = 15M
@@ -320,120 +304,103 @@ max_file_uploads = 20
 memory_limit = 256M
 ```
 
-### 5. Permissions (Linux)
+---
+
+## 🔗 Ngrok Deployment
+
+Untuk deploy via ngrok (tunneling):
+
+### 1. Update `.env`
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-subdomain.ngrok-free.dev
+
+# Session configuration for ngrok
+SESSION_DOMAIN=.ngrok-free.dev
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=none
+
+# Logging
+LOG_LEVEL=error
+```
+
+### 2. Trust Proxies
+
+File `bootstrap/app.php` sudah dikonfigurasi untuk trust proxies:
+```php
+$middleware->trustProxies(at: '*');
+```
+
+### 3. Run Ngrok
 
 ```bash
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+# Terminal 1: Laravel server
+php artisan serve --host=127.0.0.1 --port=8000
+
+# Terminal 2: Ngrok tunnel
+ngrok http 8000 --subdomain=your-subdomain
+```
+
+### 4. Clear Cache
+
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
 ```
 
 ---
 
-## LAN Hosting (Opsional)
+## 📡 LAN Hosting
 
 Untuk akses dari perangkat lain di jaringan lokal:
 
 ```bash
-# Cari IP lokal (Windows)
-ipconfig
+# Cari IP lokal
+ipconfig  # Windows
+ip addr   # Linux
 
 # Jalankan server
 php artisan serve --host=0.0.0.0 --port=8000
 
-# Buka firewall (PowerShell Admin)
-netsh advfirewall firewall add rule name="Laravel Dev Server" dir=in action=allow protocol=tcp localport=8000
+# Buka firewall (PowerShell Admin - Windows)
+netsh advfirewall firewall add rule name="Laravel" dir=in action=allow protocol=tcp localport=8000
 ```
 
-Akses dari perangkat lain: `http://192.168.x.x:8000`
+Akses: `http://192.168.x.x:8000`
 
 ---
 
-## Referensi Tambahan
+## ⚙️ Artisan Commands
 
-<details>
-<summary><strong>Setup Laragon (Domain Lokal)</strong></summary>
-
-1. Laragon → **Menu** → **Document Root** → **Browse**
-2. Pilih folder project
-3. Laragon → **Menu** → **Auto Virtual Hosts** → **esurat-perkim.test**
-4. Update `.env`: `APP_URL=http://esurat-perkim.test`
-5. Restart Laragon
-6. Akses: `http://esurat-perkim.test`
-
-</details>
-
-<details>
-<summary><strong>Struktur Database</strong></summary>
-
-| Tabel | Deskripsi |
-|-------|-----------|
-| users | Data pengguna + security questions |
-| letters | Surat masuk & keluar |
-| dispositions | Disposisi surat |
-| attachments | Lampiran surat |
-| notifications | Notifikasi sistem |
-| classifications | Klasifikasi surat |
-| letter_statuses | Status disposisi |
-| reference_codes | Kode referral |
-| configs | Konfigurasi aplikasi |
-
-**Relasi:**
-```
-users (1) ──< (N) letters
-users (1) ──< (N) dispositions
-letters (1) ──< (N) dispositions
-letters (1) ──< (N) attachments
-letters (N) ──> (1) letters (reference_to)
-```
-
-</details>
-
-<details>
-<summary><strong>File SQL</strong></summary>
-
-Tersedia di `database/migraplus/`:
-
-| File | Keterangan |
-|------|------------|
-| `e_surat_perkim_full.sql` | Struktur tabel (wajib) |
-| `e_surat_perkim_firstadmin.sql` | Admin pertama (wajib) |
-| `e_surat_perkim_references.sql` | Kode referral (opsional) |
-
-</details>
-
-<details>
-<summary><strong>API Endpoints</strong></summary>
-
-**Notifikasi:**
-```
-GET  /notifications/unread    - Ambil notifikasi belum dibaca
-POST /notifications/{id}/read - Tandai dibaca
-POST /notifications/read-all  - Tandai semua dibaca
-```
-
-**Password Reset:**
-```
-GET  /forgot-password         - Form email
-POST /forgot-password         - Verify email
-GET  /verify-security         - Form pertanyaan keamanan
-POST /verify-security         - Verify jawaban
-GET  /reset-password-local    - Form password baru
-POST /reset-password-local    - Update password
-```
-
-</details>
+| Command | Description |
+|---------|-------------|
+| `php artisan letters:sync-signatures` | Generate signature untuk surat tanpa signature |
+| `php artisan letters:sync-signatures --force` | Regenerate semua signature |
+| `php artisan signature:generate` | Generate SIGNATURE_KEY baru |
+| `php artisan optimize` | Cache config, routes, views |
+| `php artisan optimize:clear` | Clear all caches |
 
 ---
 
-## Kontribusi
+## 🤝 Kontribusi
 
 1. Fork repository
-2. Buat branch: `git checkout -b fitur-baru`
-3. Commit: `git commit -m 'Tambah fitur baru'`
-4. Push: `git push origin fitur-baru`
-5. Buat Pull Request
- 
+2. Create branch: `git checkout -b feature/nama-fitur`
+3. Commit: `git commit -m 'Add: nama fitur'`
+4. Push: `git push origin feature/nama-fitur`
+5. Create Pull Request
 
 ---
 
+## 📄 License
+
 © 2025 E-Surat Perkim. All rights reserved.
+
+---
+
+<p align="center">
+  <strong>Made with ❤️ for Indonesian Government Institutions</strong>
+</p>

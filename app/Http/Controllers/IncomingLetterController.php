@@ -19,8 +19,8 @@ class IncomingLetterController extends Controller
         // Optimized eager loading with selective columns for list view
         $query = Letter::incoming()->with([
             'user:id,name',
-            'classification:code,name',
-            'attachments:id,letter_id,filename',
+            'classification:code,type,description',
+            'attachments:id,letter_id,filename,extension,path,mime_type',
             'replies:id,reference_to',
             'dispositions:id,letter_id,letter_status'
         ]);
@@ -89,7 +89,7 @@ class IncomingLetterController extends Controller
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = \Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('attachments/incoming', $filename, 'public');
 
                 Attachment::create([
@@ -105,10 +105,18 @@ class IncomingLetterController extends Controller
         }
 
         // Generate digital signature for document integrity
-        app(SignatureService::class)->generateLetterSignature($letter);
+        try {
+            app(SignatureService::class)->generateLetterSignature($letter);
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate signature for letter ' . $letter->id . ': ' . $e->getMessage());
+        }
 
         // Create notification for all users (bulk insert - optimized)
-        app(NotificationService::class)->notifyIncomingLetter($letter->reference_number, $letter->id);
+        try {
+            app(NotificationService::class)->notifyIncomingLetter($letter->reference_number, $letter->id);
+        } catch (\Exception $e) {
+            \Log::error('Failed to create notifications for letter ' . $letter->id . ': ' . $e->getMessage());
+        }
 
         return redirect()->route('incoming.index')
             ->with('success', 'Surat masuk berhasil ditambahkan.');
@@ -169,7 +177,7 @@ class IncomingLetterController extends Controller
             }
 
             foreach ($request->file('attachments') as $file) {
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = \Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('attachments/incoming', $filename, 'public');
 
                 Attachment::create([
@@ -185,7 +193,11 @@ class IncomingLetterController extends Controller
         }
 
         // Regenerate digital signature after update
-        app(SignatureService::class)->generateLetterSignature($letter);
+        try {
+            app(SignatureService::class)->generateLetterSignature($letter);
+        } catch (\Exception $e) {
+            \Log::error('Failed to regenerate signature for letter ' . $letter->id . ': ' . $e->getMessage());
+        }
 
         return redirect()->route('incoming.index')
             ->with('success', 'Surat masuk berhasil diperbarui.');

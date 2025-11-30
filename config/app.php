@@ -21,9 +21,9 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'version' => '2.0.0',
-    'codename' => 'Shorekeeper',
-    'slogan' => 'Resonance of Enhanced File Management',
+    'version' => '2.0.1',
+    'codename' => 'Optimized Shorekeeper',
+    'slogan' => 'Performance & UX Refined',
 
     /*
     |--------------------------------------------------------------------------

@@ -33,7 +33,11 @@ class DispositionController extends Controller
         $disposition = Disposition::create($validated);
 
         // Create notification for all users (bulk insert - optimized)
-        app(NotificationService::class)->notifyDisposition($letter->reference_number, $letter->id);
+        try {
+            app(NotificationService::class)->notifyDisposition($letter->reference_number, $letter->id);
+        } catch (\Exception $e) {
+            \Log::error('Failed to create disposition notifications for letter ' . $letter->id . ': ' . $e->getMessage());
+        }
 
         return redirect()->route('incoming.show', $letter->id)
             ->with('success', 'Disposisi berhasil ditambahkan.');

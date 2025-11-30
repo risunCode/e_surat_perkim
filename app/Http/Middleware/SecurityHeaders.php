@@ -29,6 +29,17 @@ class SecurityHeaders
         
         // Permissions policy
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        
+        // Content Security Policy (disabled for debugging)
+        // $csp = "default-src 'self'; " .
+        //        "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net unpkg.com; " .
+        //        "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; " .
+        //        "font-src 'self' fonts.gstatic.com; " .
+        //        "img-src 'self' data: blob:; " .
+        //        "media-src 'self'; " .
+        //        "connect-src 'self'; " .
+        //        "frame-ancestors 'self'";
+        // $response->headers->set('Content-Security-Policy', $csp);
 
         return $response;
     }

@@ -57,7 +57,7 @@
                 <tbody class="divide-y" style="--tw-divide-opacity: 1; border-color: var(--border-color);">
                     @forelse(isset($letters->showAll) ? $letters->items : $letters as $letter)
                     <tr class="hover:opacity-80">
-                        <td class="px-4 py-3 text-center" style="color: var(--text-secondary);">{{ $letters->firstItem() + $index }}</td>
+                        <td class="px-4 py-3 text-center" style="color: var(--text-secondary);">{{ $letters->firstItem() + $loop->index }}</td>
                         <td class="px-4 py-3"><p class="font-medium" style="color: var(--text-primary);">{{ $letter->reference_number }}</p><p class="text-xs" style="color: var(--text-secondary);">{{ $letter->agenda_number }}</p></td>
                         <td class="px-4 py-3" style="color: var(--text-secondary);">{{ $letter->to }}</td>
                         <td class="px-4 py-3" style="color: var(--text-secondary);">{{ $letter->letter_date?->format('d/m/Y') }}</td>
@@ -78,26 +78,7 @@
                             @endif
                         </td>
                         <td class="px-4 py-3">
-                            @if($letter->attachments->count() > 0)
-                                <div class="flex items-center gap-1">
-                                    @foreach($letter->attachments->take(3) as $att)
-                                        @if(in_array($att->extension, ['jpg','jpeg','png','gif']))
-                                            <div class="w-8 h-8 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs font-medium" title="{{ $att->filename }}">
-                                                {{ strtoupper($att->extension) }}
-                                            </div>
-                                        @else
-                                            <div class="w-8 h-8 rounded flex items-center justify-center text-xs font-medium {{ $att->extension == 'pdf' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' }}" title="{{ $att->filename }}">
-                                                {{ strtoupper($att->extension) }}
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                    @if($letter->attachments->count() > 3)
-                                        <span class="text-xs px-2 py-1 rounded" style="background-color: var(--bg-input); color: var(--text-secondary);">+{{ $letter->attachments->count() - 3 }}</span>
-                                    @endif
-                                </div>
-                            @else
-                                <span style="color: var(--text-secondary);">-</span>
-                            @endif
+                            <x-attachment-preview :attachments="$letter->attachments" />
                         </td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">

@@ -58,4 +58,52 @@ class Attachment extends Model
     {
         return $this->mime_type === 'application/pdf';
     }
+
+    /**
+     * Get file icon class based on extension
+     */
+    public function getFileIcon(): string
+    {
+        if ($this->isImage()) {
+            return 'bx bx-image';
+        }
+        
+        return match(strtolower($this->extension)) {
+            'pdf' => 'bx bx-file-pdf',
+            'doc', 'docx' => 'bx bx-file-doc',
+            'ppt', 'pptx' => 'bx bx-file-ppt',
+            'txt' => 'bx bx-file-txt',
+            default => 'bx bx-file'
+        };
+    }
+
+    /**
+     * Get file color class based on extension
+     */
+    public function getFileColor(): string
+    {
+        if ($this->isImage()) {
+            return 'bg-green-100 text-green-600';
+        }
+        
+        return match(strtolower($this->extension)) {
+            'pdf' => 'bg-red-100 text-red-600',
+            'doc', 'docx' => 'bg-blue-100 text-blue-600',
+            'ppt', 'pptx' => 'bg-orange-100 text-orange-600',
+            'txt' => 'bg-gray-100 text-gray-600',
+            default => 'bg-gray-100 text-gray-600'
+        };
+    }
+
+    /**
+     * Get thumbnail URL for images
+     */
+    public function getThumbnailUrl(): string
+    {
+        if (!$this->isImage()) {
+            return '';
+        }
+        
+        return \Storage::url($this->full_path);
+    }
 }

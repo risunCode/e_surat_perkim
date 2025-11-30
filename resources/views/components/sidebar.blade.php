@@ -4,7 +4,13 @@
     <div class="flex items-center justify-between h-16 px-4 border-b border-white/10">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
             <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-white/20">
-                <i class="bx bx-envelope text-xl text-white"></i>
+                <img 
+                    src="{{ asset('images/logo-perkim.png') }}" 
+                    alt="Logo Perkim" 
+                    class="w-full h-full rounded-lg object-cover"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                >
+                <i class="bx bx-envelope text-xl text-white" style="display: none;"></i>
             </div>
             <div>
                 <span class="font-bold text-white text-lg">E-Surat</span>

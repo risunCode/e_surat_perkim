@@ -23,6 +23,7 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
+            'birth_date' => 'nullable|date|before:today',
         ]);
 
         $user->update($validated);
@@ -42,6 +43,48 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Password berhasil diperbarui.');
+    }
+
+    public function updateSecurity(Request $request)
+    {
+        $validQuestions = array_merge(array_keys(\App\Http\Controllers\SecurityQuestionController::getQuestions()), ['custom']);
+        
+        $validated = $request->validate([
+            'birth_date' => 'required|date|before:today',
+            'security_question' => 'required|in:' . implode(',', $validQuestions),
+            'custom_question' => 'required_if:security_question,custom|nullable|string|min:5|max:255',
+            'security_answer' => 'required|string|min:3|max:100',
+        ], [
+            'birth_date.required' => 'Tanggal lahir wajib diisi untuk verifikasi.',
+            'birth_date.before' => 'Tanggal lahir tidak valid.',
+            'security_question.required' => 'Pertanyaan keamanan wajib dipilih.',
+            'custom_question.required_if' => 'Pertanyaan kustom wajib diisi.',
+            'custom_question.min' => 'Pertanyaan minimal 5 karakter.',
+            'security_answer.required' => 'Jawaban keamanan wajib diisi.',
+            'security_answer.min' => 'Jawaban minimal 3 karakter.',
+        ]);
+
+        $user = Auth::user();
+
+        // Verify birth date if user already has one set
+        if ($user->birth_date && $user->birth_date->format('Y-m-d') !== $validated['birth_date']) {
+            return back()->withErrors(['birth_date' => 'Tanggal lahir tidak sesuai dengan data profil.']);
+        }
+
+        // Determine the question to save
+        $questionToSave = $validated['security_question'];
+        if ($validated['security_question'] === 'custom') {
+            $questionToSave = 'custom:' . $validated['custom_question'];
+        }
+
+        $user->update([
+            'birth_date' => $validated['birth_date'], // Update birth date if not set
+            'security_question' => $questionToSave,
+            'security_answer' => Hash::make(strtolower(trim($validated['security_answer']))),
+            'security_setup_completed' => true,
+        ]);
+
+        return back()->with('success', 'Pertanyaan keamanan berhasil diperbarui.');
     }
 
     public function updatePhoto(Request $request)

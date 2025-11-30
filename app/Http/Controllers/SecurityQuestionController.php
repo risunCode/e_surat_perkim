@@ -84,6 +84,22 @@ class SecurityQuestionController extends Controller
      */
     public function forgotPassword()
     {
+        // If user is authenticated, show security form directly (sibaraku style)
+        if (auth()->check()) {
+            $user = auth()->user();
+            
+            if (!$user->security_setup_completed) {
+                return redirect()->route('profile.show')
+                    ->withErrors(['error' => 'Anda belum mengatur pertanyaan keamanan. Silakan hubungi administrator untuk reset password.']);
+            }
+            
+            // Store email in session for security verification
+            session(['reset_email' => $user->email, 'authenticated_reset' => true]);
+            
+            // Show security form directly instead of redirecting
+            return $this->showSecurityForm();
+        }
+        
         return view('pages.auth.forgot-password');
     }
 
@@ -136,6 +152,7 @@ class SecurityQuestionController extends Controller
             'email' => $email,
             'question' => $questionText,
             'birth_date_hint' => $user->birth_date ? $user->birth_date->format('Y') : null,
+            'is_authenticated_reset' => session('authenticated_reset', false),
         ]);
     }
 
@@ -208,9 +225,18 @@ class SecurityQuestionController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Clear session
-        session()->forget(['reset_email', 'reset_token', 'reset_user_id']);
+        // Check if this was an authenticated reset
+        $isAuthenticatedReset = session('authenticated_reset', false);
 
-        return redirect()->route('login')->with('status', 'Password berhasil direset! Silakan login.');
+        // Clear session
+        session()->forget(['reset_email', 'reset_token', 'reset_user_id', 'authenticated_reset']);
+
+        if ($isAuthenticatedReset) {
+            // For authenticated users, redirect back to profile
+            return redirect()->route('profile.show')->with('success', 'Password berhasil direset!');
+        } else {
+            // For non-authenticated users, redirect to login
+            return redirect()->route('login')->with('status', 'Password berhasil direset! Silakan login.');
+        }
     }
 }
