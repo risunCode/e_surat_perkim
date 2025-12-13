@@ -38,12 +38,45 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
-### 7. Password Security
+### 7. Content Security Policy (CSP) - Optional
+CSP memberikan perlindungan tambahan terhadap XSS dengan membatasi sumber script/style.
+
+**Status**: Disabled by default (dapat merusak beberapa fitur)
+
+**Cara mengaktifkan**:
+```env
+# .env
+CSP_ENABLED=true
+```
+
+**⚠️ WARNING**: 
+- Test di staging environment terlebih dahulu
+- CSP dapat memblokir inline scripts dan external resources
+- Pastikan semua CDN sudah terdaftar di whitelist
+- `/test-deface` route di-exclude dari CSP (untuk pentest demo)
+
+**Policy yang diterapkan**:
+```
+default-src 'self'
+script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net unpkg.com [vite-url]
+style-src 'self' 'unsafe-inline' cdn.jsdelivr.net unpkg.com fonts.googleapis.com [vite-url]
+font-src 'self' data: fonts.gstatic.com unpkg.com
+img-src 'self' data: blob:
+connect-src 'self' ws: wss: [vite-url]
+frame-ancestors 'self'
+form-action 'self'
+base-uri 'self'
+```
+
+**Exceptions**:
+- `/test-deface` - Intentionally vulnerable endpoint untuk pentest demo
+
+### 8. Password Security
 - Bcrypt hashing (12 rounds)
 - Minimum 8 karakter
 - Password confirmation required
 
-### 8. Session Security
+### 9. Session Security
 - Database session driver
 - 7 hari expiry dengan inactivity
 - Encrypted session option available

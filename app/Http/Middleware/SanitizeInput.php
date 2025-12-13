@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AttackAlert;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,22 +10,40 @@ use Symfony\Component\HttpFoundation\Response;
 class SanitizeInput
 {
     /**
-     * Dangerous patterns that might indicate SQL injection or XSS.
-     * Reduced false positives, focused on actual threats.
+     * Dangerous patterns with their attack types and severity.
      */
     protected array $dangerousPatterns = [
-        '/<script[^>]*>.*?<\/script>/is', // Script tags
-        '/javascript\s*:/i', // JavaScript protocol
-        '/vbscript\s*:/i', // VBScript protocol  
-        '/on(click|load|error|mouse)\s*=/i', // Common event handlers
-        '/(union\s+select|drop\s+table|insert\s+into)/i', // SQL injection
-        '/(\-\-\s|\/\*|\*\/)/i', // SQL comments
-        '/<iframe[^>]*>/i', // Iframe tags
-        '/<object[^>]*>/i', // Object tags
+        // XSS patterns
+        ['pattern' => '/<script[^>]*>.*?<\/script>/is', 'type' => 'xss', 'severity' => 'high'],
+        ['pattern' => '/javascript\s*:/i', 'type' => 'xss', 'severity' => 'high'],
+        ['pattern' => '/vbscript\s*:/i', 'type' => 'xss', 'severity' => 'high'],
+        ['pattern' => '/on(click|load|error|mouse|focus|blur)\s*=/i', 'type' => 'xss', 'severity' => 'high'],
+        ['pattern' => '/<iframe[^>]*>/i', 'type' => 'xss', 'severity' => 'medium'],
+        ['pattern' => '/<object[^>]*>/i', 'type' => 'xss', 'severity' => 'medium'],
+        ['pattern' => '/<embed[^>]*>/i', 'type' => 'xss', 'severity' => 'medium'],
+        ['pattern' => '/<svg[^>]*onload/i', 'type' => 'xss', 'severity' => 'high'],
+        ['pattern' => '/<img[^>]*onerror/i', 'type' => 'xss', 'severity' => 'high'],
+        
+        // SQL Injection patterns
+        ['pattern' => '/(union\s+select|union\s+all\s+select)/i', 'type' => 'sqli', 'severity' => 'critical'],
+        ['pattern' => '/(drop\s+table|drop\s+database)/i', 'type' => 'sqli', 'severity' => 'critical'],
+        ['pattern' => '/(insert\s+into|delete\s+from)/i', 'type' => 'sqli', 'severity' => 'critical'],
+        ['pattern' => '/(\'\s*or\s+\'?\d+\'?\s*=\s*\'?\d+)/i', 'type' => 'sqli', 'severity' => 'high'],
+        ['pattern' => '/(;\s*drop\s|;\s*delete\s|;\s*update\s)/i', 'type' => 'sqli', 'severity' => 'critical'],
+        ['pattern' => '/(\/\*.*\*\/|--\s)/i', 'type' => 'sqli', 'severity' => 'medium'],
+        
+        // Command Injection
+        ['pattern' => '/(;\s*(ls|cat|rm|wget|curl|bash|sh|nc|netcat)\s)/i', 'type' => 'injection', 'severity' => 'critical'],
+        ['pattern' => '/(\|\s*(ls|cat|rm|wget|curl|bash|sh)\s)/i', 'type' => 'injection', 'severity' => 'critical'],
+        ['pattern' => '/(`[^`]+`)/i', 'type' => 'injection', 'severity' => 'high'],
+        
+        // Path Traversal
+        ['pattern' => '/(\.\.\/|\.\.\\\\){2,}/i', 'type' => 'traversal', 'severity' => 'high'],
+        ['pattern' => '/(\/etc\/passwd|\/etc\/shadow)/i', 'type' => 'traversal', 'severity' => 'critical'],
     ];
 
     /**
-     * Fields to skip sanitization (like passwords).
+     * Fields to skip sanitization.
      */
     protected array $skipFields = [
         'password',
@@ -37,27 +56,44 @@ class SanitizeInput
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check for dangerous patterns in input
         $input = $request->except($this->skipFields);
         
         foreach ($input as $key => $value) {
-            if (is_string($value) && $this->containsDangerousPattern($value)) {
-                // Log the attempt
-                \Log::warning('Potential injection attempt detected', [
-                    'ip' => $request->ip(),
-                    'field' => $key,
-                    'value' => substr($value, 0, 100),
-                    'url' => $request->fullUrl(),
-                    'user_id' => auth()->id(),
-                ]);
+            if (is_string($value)) {
+                $detected = $this->detectAttack($value);
+                
+                if ($detected) {
+                    // Log to attack_alerts table
+                    AttackAlert::logAttack(
+                        type: $detected['type'],
+                        severity: $detected['severity'],
+                        ip: $request->ip(),
+                        url: $request->fullUrl(),
+                        userAgent: $request->userAgent(),
+                        field: $key,
+                        payload: $value,
+                        details: "Pattern matched: {$detected['pattern']}",
+                        userId: auth()->id(),
+                        fingerprint: $request->header('X-Fingerprint')
+                    );
 
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'message' => 'Input tidak valid terdeteksi.',
-                    ], 400);
+                    // Also log to Laravel log
+                    \Log::warning('Attack detected and logged', [
+                        'type' => $detected['type'],
+                        'severity' => $detected['severity'],
+                        'ip' => $request->ip(),
+                        'field' => $key,
+                        'url' => $request->fullUrl(),
+                    ]);
+
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'message' => 'Input tidak valid terdeteksi.',
+                        ], 400);
+                    }
+
+                    return back()->withErrors(['error' => 'Input tidak valid terdeteksi.'])->withInput();
                 }
-
-                return back()->withErrors(['error' => 'Input tidak valid terdeteksi.'])->withInput();
             }
         }
 
@@ -65,15 +101,19 @@ class SanitizeInput
     }
 
     /**
-     * Check if value contains dangerous patterns.
+     * Detect attack pattern and return details.
      */
-    protected function containsDangerousPattern(string $value): bool
+    protected function detectAttack(string $value): ?array
     {
-        foreach ($this->dangerousPatterns as $pattern) {
-            if (preg_match($pattern, $value)) {
-                return true;
+        foreach ($this->dangerousPatterns as $item) {
+            if (preg_match($item['pattern'], $value)) {
+                return [
+                    'type' => $item['type'],
+                    'severity' => $item['severity'],
+                    'pattern' => $item['pattern'],
+                ];
             }
         }
-        return false;
+        return null;
     }
 }

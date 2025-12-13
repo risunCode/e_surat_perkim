@@ -21,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
                      \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
         );
         
+        // Exclude test-deface from CSRF verification (pentest endpoint)
+        $middleware->validateCsrfTokens(except: [
+            'test-deface',
+            'test-deface/*',
+        ]);
+        
         $middleware->alias([
             'auth' => \App\Http\Middleware\Authenticate::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,

@@ -459,5 +459,108 @@
             showSessionExpiredAlert();
         }
     </script>
+    
+    {{-- Attack Alert Modal for Guest Users --}}
+    <div id="attackAlertModal" class="fixed inset-0 z-[9999] hidden">
+        <div class="fixed inset-0 bg-red-900/80 backdrop-blur-sm"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border-4 border-red-500 overflow-hidden" style="animation: pulse-border 1s ease-in-out infinite;">
+                <div class="bg-red-600 text-white p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <i class='bx bx-shield-x text-2xl'></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">⚠️ PERINGATAN KEAMANAN</h2>
+                        <p class="text-red-100 text-xs">Serangan terdeteksi pada sistem</p>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                        <p class="text-red-800 font-medium text-sm mb-1">
+                            <i class='bx bx-error-circle'></i> Sistem mendeteksi percobaan serangan!
+                        </p>
+                        <p class="text-red-600 text-xs">
+                            Tim keamanan telah diberitahu dan sedang menangani masalah ini.
+                        </p>
+                    </div>
+                    <div id="attackDetails" class="space-y-2 text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gray-100 rounded-lg p-2">
+                                <span class="text-gray-500 text-xs">Jenis Serangan</span>
+                                <p id="attackType" class="font-semibold text-red-600 uppercase text-sm">-</p>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-2">
+                                <span class="text-gray-500 text-xs">Tingkat Bahaya</span>
+                                <p id="attackSeverity" class="font-semibold uppercase text-sm">-</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-2">
+                            <span class="text-gray-500 text-xs">IP Address Penyerang</span>
+                            <p id="attackIp" class="font-mono font-semibold text-sm">-</p>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-2">
+                            <span class="text-gray-500 text-xs">Waktu Terdeteksi</span>
+                            <p id="attackTime" class="font-semibold text-sm">-</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-100 p-4 flex items-center justify-between">
+                    <p class="text-xs text-gray-500">
+                        <i class='bx bx-info-circle'></i> Peringatan ini akan ditutup oleh admin
+                    </p>
+                    <button onclick="closeAttackAlert()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                        <i class='bx bx-right-arrow-alt'></i> Lanjutkan Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgb(239 68 68); }
+            50% { border-color: rgb(252 165 165); }
+        }
+    </style>
+    
+    <script>
+        // Check for active attack alerts (public endpoint)
+        async function checkAttackAlerts() {
+            try {
+                const response = await fetch('/api/public/attack-alerts');
+                const data = await response.json();
+                
+                if (data.count > 0) {
+                    const alert = data.alerts[0];
+                    document.getElementById('attackType').textContent = alert.type.toUpperCase();
+                    document.getElementById('attackSeverity').textContent = alert.severity.toUpperCase();
+                    document.getElementById('attackSeverity').className = `font-semibold uppercase text-sm ${getSeverityColor(alert.severity)}`;
+                    document.getElementById('attackIp').textContent = alert.ip;
+                    document.getElementById('attackTime').textContent = alert.time;
+                    document.getElementById('attackAlertModal').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Failed to check attack alerts:', error);
+            }
+        }
+        
+        function getSeverityColor(severity) {
+            switch (severity) {
+                case 'critical': return 'text-red-600';
+                case 'high': return 'text-orange-600';
+                case 'medium': return 'text-yellow-600';
+                case 'low': return 'text-blue-600';
+                default: return 'text-gray-600';
+            }
+        }
+        
+        function closeAttackAlert() {
+            document.getElementById('attackAlertModal').classList.add('hidden');
+        }
+        
+        // Check on page load and every 30 seconds
+        checkAttackAlerts();
+        setInterval(checkAttackAlerts, 30000);
+    </script>
 </body>
 </html>

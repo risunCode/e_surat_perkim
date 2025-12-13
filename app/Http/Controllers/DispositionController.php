@@ -74,10 +74,13 @@ class DispositionController extends Controller
             ->with('success', 'Disposisi berhasil dihapus.');
     }
 
+    /**
+     * Authorize edit/delete - Admin only (consistent with Letter policy)
+     */
     private function authorizeEdit(Disposition $disposition)
     {
-        if (!Auth::user()->isAdmin() && $disposition->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak memiliki akses untuk mengubah disposisi ini.');
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Hanya administrator yang dapat mengubah atau menghapus disposisi.');
         }
     }
 }

@@ -30,16 +30,42 @@ class SecurityHeaders
         // Permissions policy
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
         
-        // Content Security Policy (disabled for debugging)
-        // $csp = "default-src 'self'; " .
-        //        "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net unpkg.com; " .
-        //        "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; " .
-        //        "font-src 'self' fonts.gstatic.com; " .
-        //        "img-src 'self' data: blob:; " .
-        //        "media-src 'self'; " .
-        //        "connect-src 'self'; " .
-        //        "frame-ancestors 'self'";
-        // $response->headers->set('Content-Security-Policy', $csp);
+        // Content Security Policy - Protect against XSS
+        // DISABLED by default - Only enabled if CSP_ENABLED=true in .env
+        // 
+        // WARNING: CSP may break some features if not configured properly.
+        // Test thoroughly before enabling in production.
+        // 
+        // EXCEPTION: /test-deface is excluded (intentionally vulnerable for pentest demo)
+        $isTestDeface = $request->is('test-deface') || $request->is('test-deface/*');
+        
+        if (!$isTestDeface && (env('CSP_ENABLED') === true || env('CSP_ENABLED') === 'true')) {
+            // Build dynamic CSP based on environment
+            $appUrl = config('app.url', 'http://localhost:8000');
+            $viteUrl = env('VITE_DEV_SERVER_URL', 'http://localhost:5173');
+            
+            $csp = "default-src 'self'; " .
+                   // Scripts: self, inline (for Blade), eval (for some libs), CDNs, Vite HMR
+                   "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net unpkg.com {$viteUrl}; " .
+                   // Styles: self, inline (for dynamic styles), CDNs, Google Fonts
+                   "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net unpkg.com fonts.googleapis.com {$viteUrl}; " .
+                   // Fonts: self, Google Fonts, unpkg (boxicons)
+                   "font-src 'self' data: fonts.gstatic.com unpkg.com; " .
+                   // Images: self, data URIs, blobs (for previews)
+                   "img-src 'self' data: blob:; " .
+                   // Media: self
+                   "media-src 'self'; " .
+                   // Connect: self, Vite HMR websocket
+                   "connect-src 'self' ws: wss: {$viteUrl}; " .
+                   // Frame ancestors: self only (prevent clickjacking)
+                   "frame-ancestors 'self'; " .
+                   // Form action: self only
+                   "form-action 'self'; " .
+                   // Base URI: self only
+                   "base-uri 'self'";
+            
+            $response->headers->set('Content-Security-Policy', $csp);
+        }
 
         return $response;
     }

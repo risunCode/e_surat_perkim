@@ -119,6 +119,19 @@
                 <i class="bx bx-cog text-xl"></i>
                 <span class="font-medium">Pengaturan</span>
             </a>
+            
+            <a href="{{ route('admin.attack-alerts.index') }}" class="sidebar-link flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('admin.attack-alerts.*') ? 'active' : '' }}" style="{{ request()->routeIs('admin.attack-alerts.*') ? $activeStyle : $inactiveStyle }}">
+                <div class="flex items-center gap-3">
+                    <i class="bx bx-shield-x text-xl"></i>
+                    <span class="font-medium">Attack Alerts</span>
+                </div>
+                @php
+                    $activeAlertCount = \App\Models\AttackAlert::active()->count();
+                @endphp
+                @if($activeAlertCount > 0)
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-red-500 text-white animate-pulse">{{ $activeAlertCount }}</span>
+                @endif
+            </a>
         </div>
         @endif
         

@@ -35,6 +35,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Content Security Policy (CSP)
+    |--------------------------------------------------------------------------
+    |
+    | Enable CSP headers for additional XSS protection. Disabled by default
+    | as it may break some features. Test thoroughly before enabling.
+    | Set CSP_ENABLED=true in .env to enable.
+    |
+    */
+
+    'csp_enabled' => env('CSP_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

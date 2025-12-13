@@ -12,16 +12,14 @@ class AttachmentController extends Controller
 {
     /**
      * Serve attachment file with proper caching headers
+     * All authenticated users can view attachments (consistent with letter view policy)
      */
     public function serve($id)
     {
         $attachment = Attachment::findOrFail($id);
         
-        // Authorization: Only letter owner, admin, or staff can access
-        $letter = $attachment->letter;
-        if (!auth()->user()->isAdmin() && $letter->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized to access this file');
-        }
+        // All authenticated users can view attachments
+        // Auth middleware already ensures user is logged in
         
         // Check if file exists
         $fullPath = $attachment->full_path;
@@ -69,16 +67,14 @@ class AttachmentController extends Controller
     
     /**
      * Force download attachment
+     * All authenticated users can download attachments (consistent with letter view policy)
      */
     public function download($id)
     {
         $attachment = Attachment::findOrFail($id);
         
-        // Authorization: Only letter owner, admin, or staff can access
-        $letter = $attachment->letter;
-        if (!auth()->user()->isAdmin() && $letter->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized to access this file');
-        }
+        // All authenticated users can download attachments
+        // Auth middleware already ensures user is logged in
         
         // Check if file exists
         $fullPath = $attachment->full_path;

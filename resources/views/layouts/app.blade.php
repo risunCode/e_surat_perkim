@@ -655,6 +655,9 @@
     {{-- Real-time Toast Notifications --}}
     @include('components.toast-notifications')
     
+    {{-- Attack Alert Modal --}}
+    @include('components.attack-alert-modal')
+    
     @stack('scripts')
 </body>
 </html>

@@ -65,5 +65,23 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('downloads', function ($request) {
             return Limit::perMinute(20)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Password reset rate limiter - 5 requests per minute (prevent email enumeration)
+        RateLimiter::for('password-reset', function ($request) {
+            return Limit::perMinute(5)->by($request->ip())->response(function () {
+                return back()->withErrors([
+                    'email' => 'Terlalu banyak percobaan. Silakan tunggu beberapa saat.',
+                ]);
+            });
+        });
+
+        // Security verification rate limiter - 5 requests per minute
+        RateLimiter::for('security-verify', function ($request) {
+            return Limit::perMinute(5)->by($request->ip())->response(function () {
+                return back()->withErrors([
+                    'security_answer' => 'Terlalu banyak percobaan. Silakan tunggu beberapa saat.',
+                ]);
+            });
+        });
     }
 }
