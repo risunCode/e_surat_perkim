@@ -224,7 +224,6 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
             // Bulk actions (must be before parameter routes)
             Route::post('/bulk/mitigate-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'mitigateAll'])->name('mitigate-all');
             Route::post('/bulk/archive-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'archiveAll'])->name('archive-all');
-            Route::post('/bulk/dismiss-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'dismissAll'])->name('dismiss-all');
             Route::delete('/bulk/delete-archived', [\App\Http\Controllers\Admin\AttackAlertController::class, 'deleteAll'])->name('delete-archived');
             
             // Single alert routes (parameter routes last)

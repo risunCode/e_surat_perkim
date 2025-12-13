@@ -145,12 +145,6 @@ class AttackAlertController extends Controller
         return back()->with('success', 'Semua alert berhasil di-archive.');
     }
 
-    public function dismissAll()
-    {
-        // Legacy - now archives all
-        return $this->archiveAll();
-    }
-
     public function deleteAll()
     {
         AttackAlert::archived()->delete();

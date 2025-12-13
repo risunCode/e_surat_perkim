@@ -95,27 +95,18 @@ function startAttackPolling() {
 async function checkAttacks() {
     // Skip if snoozed
     if (dismissedUntil && Date.now() < dismissedUntil) {
-        console.log('[AttackAlert] Snoozed, skipping check');
         return;
     }
     
     try {
-        console.log('[AttackAlert] Checking for attacks...');
         const response = await fetch('/api/attack-alerts/active');
-        console.log('[AttackAlert] Response status:', response.status);
-        if (!response.ok) {
-            console.log('[AttackAlert] Response not OK');
-            return;
-        }
+        if (!response.ok) return;
         
         const data = await response.json();
-        console.log('[AttackAlert] Data:', data);
-        console.log('[AttackAlert] Seen IDs:', seenAlertIds);
         
         if (data.count > 0) {
             // Filter out seen alerts - only show alerts not yet seen
             const unseenAlerts = data.alerts.filter(a => !seenAlertIds.includes(a.id));
-            console.log('[AttackAlert] Unseen alerts:', unseenAlerts.length);
             
             if (unseenAlerts.length > 0) {
                 showAttackToast(unseenAlerts[0], unseenAlerts.length);
@@ -128,7 +119,7 @@ async function checkAttacks() {
             hideAttackToast();
         }
     } catch (e) {
-        console.error('[AttackAlert] Poll error:', e);
+        // Silent fail
     }
 }
 
@@ -211,7 +202,6 @@ function clearAlertState() {
     localStorage.removeItem(SEEN_KEY);
     dismissedUntil = null;
     seenAlertIds = [];
-    console.log('[AttackAlert] State cleared - no active alerts');
 }
 
 // Clear seen alerts when visiting attack alerts page

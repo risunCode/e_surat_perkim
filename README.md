@@ -1,4 +1,4 @@
-# E-Surat Perkim v2.1.1 "Fortified Shield"
+# E-Surat Perkim v2.5.0 "Fortified Shield"
 
 > *Security Hardened & Battle Tested* — Sistem Manajemen Surat Digital untuk Instansi Pemerintah
 
@@ -11,7 +11,21 @@
 
 E-Surat Perkim adalah aplikasi manajemen surat-menyurat digital yang menggantikan proses manual pencatatan surat dengan sistem terintegrasi. Dirancang khusus untuk instansi pemerintah dengan fitur disposisi berjenjang, pelacakan korespondensi, dan **verifikasi dokumen via QR Code & Digital Signature**.
 
-<img width="100%" alt="E-Surat Perkim Dashboard" src="https://github.com/user-attachments/assets/ae43e73b-d498-43c2-8932-530489cb74a4" />
+---
+
+## 📸 Screenshots
+
+| Dashboard | Surat Masuk |
+|:---------:|:-----------:|
+| <img width="400" alt="Dashboard" src="https://github.com/user-attachments/assets/8e02e5ef-51f6-4f64-99ce-f0b81b7d7f9b" /> | <img width="400" alt="Surat Masuk" src="https://github.com/user-attachments/assets/3fb41477-d61b-4727-be4b-6af45768ecd8" /> |
+
+| Detail Surat | Keamanan (Attack Alerts) |
+|:------------:|:------------------------:|
+| <img width="400" alt="Detail Surat" src="https://github.com/user-attachments/assets/150449c4-164f-4dd1-92f5-b0f582bc068d" /> | <img width="400" alt="Keamanan" src="https://github.com/user-attachments/assets/439e76aa-45e7-4e99-a9d8-223a9ea61a91" /> |
+
+| Tentang Aplikasi | Responsive Mobile |
+|:----------------:|:-----------------:|
+| <img width="400" alt="Tentang Aplikasi" src="https://github.com/user-attachments/assets/3d7fd106-4c62-4c7b-85e7-47b6bfb4f8fa" /> | ✅ Mendukung tampilan responsive untuk mobile/tablet |
 
 ---
 
