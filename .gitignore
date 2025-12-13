@@ -28,3 +28,6 @@ Thumbs.db
 
 # Pentest tools (local only)
 pentest-esurat-perkim/
+
+# Kiro IDE configuration
+.kiro/

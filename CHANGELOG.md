@@ -3,7 +3,7 @@ All notable changes to E-Surat Perkim will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.1.1] "Fortified Shield" - 2025-12-14
+## [2.5.0] "Fortified Shield" - 2025-12-14
 **"Security Hardened & Battle Tested"** 🛡️
 
 ### ✨ Added
