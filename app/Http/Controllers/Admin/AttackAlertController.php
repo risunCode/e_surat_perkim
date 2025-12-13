@@ -24,7 +24,7 @@ class AttackAlertController extends Controller
             $query->where('status', $request->status);
         }
 
-        $alerts = $query->paginate(20);
+        $alerts = $query->paginate(20)->withQueryString();
 
         $stats = [
             'total' => AttackAlert::count(),
@@ -80,6 +80,31 @@ class AttackAlertController extends Controller
         return back()->with('success', 'Alert berhasil dihapus.');
     }
 
+    // Block IP address
+    public function blockIp(AttackAlert $attackAlert)
+    {
+        $ip = $attackAlert->ip_address;
+        
+        // Check if already blocked
+        if (\App\Models\BlockedIp::isBlocked($ip)) {
+            return back()->with('error', "IP {$ip} sudah diblokir.");
+        }
+        
+        // Create block record
+        \App\Models\BlockedIp::create([
+            'ip_address' => $ip,
+            'reason' => "Blocked due to {$attackAlert->attack_type} attack",
+            'blocked_by' => auth()->id(),
+            'is_permanent' => true,
+            'attack_alert_id' => $attackAlert->id,
+        ]);
+        
+        // Archive the alert
+        $attackAlert->archive(auth()->id());
+        
+        return back()->with('success', "IP {$ip} berhasil diblokir.");
+    }
+
     // Legacy dismiss (now archives)
     public function dismiss(AttackAlert $attackAlert)
     {
@@ -129,27 +154,37 @@ class AttackAlertController extends Controller
     {
         AttackAlert::archived()->delete();
 
-        return back()->with('success', 'Semua alert archived berhasil dihapus.');
+        return redirect()->route('admin.attack-alerts.index')->with('success', 'Semua alert archived berhasil dihapus.');
     }
 
-    // API endpoint for checking active alerts (used by frontend modal)
-    public function getActiveAlerts()
+    // API endpoint for checking active/mitigated alerts (used by frontend modal & console)
+    public function getActiveAlerts(Request $request)
     {
-        $alerts = AttackAlert::active()
+        // Get recent alerts (active or mitigated, not archived)
+        $query = AttackAlert::notArchived()
             ->recent(1) // Last 1 hour
-            ->latest()
-            ->limit(5)
-            ->get();
+            ->latest();
+        
+        // If since_id provided, only get newer alerts (for console polling)
+        if ($request->filled('since_id')) {
+            $query->where('id', '>', $request->since_id);
+        }
+        
+        $alerts = $query->limit(20)->get();
 
         return response()->json([
             'count' => $alerts->count(),
+            'active_count' => AttackAlert::active()->recent(1)->count(),
+            'mitigated_count' => AttackAlert::mitigated()->recent(1)->count(),
             'alerts' => $alerts->map(fn($a) => [
                 'id' => $a->id,
                 'type' => $a->attack_type,
                 'severity' => $a->severity,
+                'status' => $a->status,
                 'ip' => $a->ip_address,
                 'url' => $a->target_url,
                 'time' => $a->created_at->diffForHumans(),
+                'timestamp' => $a->created_at->toIso8601String(),
                 'user_agent' => $a->user_agent,
             ]),
         ]);

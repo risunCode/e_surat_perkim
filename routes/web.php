@@ -226,6 +226,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
             Route::post('/{attackAlert}/mitigate', [\App\Http\Controllers\Admin\AttackAlertController::class, 'mitigate'])->name('mitigate');
             Route::post('/{attackAlert}/archive', [\App\Http\Controllers\Admin\AttackAlertController::class, 'archive'])->name('archive');
             Route::post('/{attackAlert}/dismiss', [\App\Http\Controllers\Admin\AttackAlertController::class, 'dismiss'])->name('dismiss');
+            Route::post('/{attackAlert}/block-ip', [\App\Http\Controllers\Admin\AttackAlertController::class, 'blockIp'])->name('block-ip');
             Route::delete('/{attackAlert}', [\App\Http\Controllers\Admin\AttackAlertController::class, 'destroy'])->name('destroy');
             
             // Bulk actions

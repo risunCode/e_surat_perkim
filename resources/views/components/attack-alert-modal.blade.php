@@ -1,176 +1,205 @@
-{{-- Attack Alert Modal - Shows when attack is detected --}}
-<div id="attackAlertModal" class="fixed inset-0 z-[9999] hidden">
-    {{-- Backdrop --}}
-    <div class="fixed inset-0 bg-red-900/80 backdrop-blur-sm"></div>
-    
-    {{-- Modal --}}
-    <div class="fixed inset-0 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full border-4 border-red-500 animate-pulse-border overflow-hidden">
-            {{-- Header --}}
-            <div class="bg-red-600 text-white p-4 flex items-center gap-3">
-                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    <i class='bx bx-shield-x text-3xl animate-pulse'></i>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold">⚠️ PERINGATAN KEAMANAN</h2>
-                    <p class="text-red-100 text-sm">Serangan terdeteksi pada sistem</p>
+{{-- Attack Alert Toast - Compact notification for admin --}}
+@if(auth()->check() && auth()->user()->isAdmin())
+
+{{-- Floating Alert Toast (Bottom Right) --}}
+<div id="attackAlertToast" class="fixed bottom-4 right-4 z-[9999] hidden max-w-sm w-full">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border-l-4 border-red-500 overflow-hidden">
+        {{-- Header --}}
+        <div class="flex items-center justify-between px-4 py-2 bg-red-500 text-white">
+            <div class="flex items-center gap-2">
+                <i class='bx bx-shield-x text-lg animate-pulse'></i>
+                <span class="font-semibold text-sm">Attack Detected</span>
+                <span id="alertBadge" class="bg-white/20 text-xs px-1.5 py-0.5 rounded-full hidden">+0</span>
+            </div>
+            <button onclick="hideAttackToast()" class="hover:bg-white/20 rounded p-0.5">
+                <i class='bx bx-x text-lg'></i>
+            </button>
+        </div>
+        
+        {{-- Content --}}
+        <div class="p-3 space-y-2">
+            <div class="flex items-center gap-3">
+                <div class="flex-1 grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400">Type</span>
+                        <p id="attackType" class="font-bold text-red-600 dark:text-red-400">XSS</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400">Severity</span>
+                        <p id="attackSeverity" class="font-bold">HIGH</p>
+                    </div>
                 </div>
             </div>
             
-            {{-- Content --}}
-            <div class="p-6">
-                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
-                    <p class="text-red-800 dark:text-red-200 font-medium mb-2">
-                        <i class='bx bx-error-circle'></i> Sistem mendeteksi percobaan serangan!
-                    </p>
-                    <p class="text-red-600 dark:text-red-300 text-sm">
-                        Tim keamanan telah diberitahu dan sedang menangani masalah ini.
-                    </p>
-                </div>
-
-                {{-- Attack Details --}}
-                <div id="attackDetails" class="space-y-3 text-sm">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                            <span class="text-gray-500 dark:text-gray-400 text-xs">Jenis Serangan</span>
-                            <p id="attackType" class="font-semibold text-red-600 dark:text-red-400 uppercase">-</p>
-                        </div>
-                        <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                            <span class="text-gray-500 dark:text-gray-400 text-xs">Tingkat Bahaya</span>
-                            <p id="attackSeverity" class="font-semibold uppercase">-</p>
-                        </div>
-                    </div>
-                    <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                        <span class="text-gray-500 dark:text-gray-400 text-xs">IP Address Penyerang</span>
-                        <p id="attackIp" class="font-mono font-semibold">-</p>
-                    </div>
-                    <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                        <span class="text-gray-500 dark:text-gray-400 text-xs">Target URL</span>
-                        <p id="attackUrl" class="font-mono text-xs break-all">-</p>
-                    </div>
-                    <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                        <span class="text-gray-500 dark:text-gray-400 text-xs">Browser / User Agent</span>
-                        <p id="attackUserAgent" class="font-mono text-xs break-all">-</p>
-                    </div>
-                    <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                        <span class="text-gray-500 dark:text-gray-400 text-xs">Waktu Terdeteksi</span>
-                        <p id="attackTime" class="font-semibold">-</p>
-                    </div>
-                </div>
-
-                {{-- Multiple Alerts --}}
-                <div id="multipleAlerts" class="hidden mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                    <p class="text-yellow-800 dark:text-yellow-200 text-sm">
-                        <i class='bx bx-info-circle'></i> 
-                        <span id="alertCount">0</span> serangan terdeteksi dalam 1 jam terakhir
-                    </p>
-                </div>
+            <div class="text-xs">
+                <span class="text-gray-500 dark:text-gray-400">From</span>
+                <p id="attackIp" class="font-mono font-semibold text-gray-900 dark:text-white">127.0.0.1</p>
             </div>
             
-            {{-- Footer --}}
-            <div class="bg-gray-100 dark:bg-gray-800 p-4 flex items-center justify-between">
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                    <i class='bx bx-lock-alt'></i> Hanya admin yang dapat menutup peringatan ini
-                </p>
-                @if(auth()->check() && auth()->user()->isAdmin())
-                <button onclick="dismissAttackAlert()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                    <i class='bx bx-check'></i> Dismiss Alert
-                </button>
-                @else
-                <span class="text-xs text-red-500 font-medium">
-                    <i class='bx bx-lock'></i> Menunggu admin...
-                </span>
-                @endif
+            <div class="text-xs">
+                <span class="text-gray-500 dark:text-gray-400">Target</span>
+                <p id="attackUrl" class="font-mono text-gray-600 dark:text-gray-300 truncate">/api/test</p>
             </div>
+            
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-1 border-t border-gray-200 dark:border-gray-700">
+                <span id="attackTime">Just now</span>
+                <span id="attackCount" class="hidden"><span id="countNum">0</span> attacks</span>
+            </div>
+        </div>
+        
+        {{-- Actions --}}
+        <div class="flex border-t border-gray-200 dark:border-gray-700 text-xs">
+            <a href="{{ route('admin.attack-alerts.index') }}" onclick="markAlertsSeen()" class="flex-1 py-2 text-center text-white bg-red-500 hover:bg-red-600 transition-colors font-medium">
+                <i class='bx bx-shield-quarter'></i> View Alerts
+            </a>
+            <button onclick="dismissFor30Min()" class="flex-1 py-2 text-center text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors border-l border-gray-200 dark:border-gray-700">
+                <i class='bx bx-time'></i> Snooze 30m
+            </button>
         </div>
     </div>
 </div>
 
-<style>
-@keyframes pulse-border {
-    0%, 100% { border-color: rgb(239 68 68); }
-    50% { border-color: rgb(252 165 165); }
-}
-.animate-pulse-border {
-    animation: pulse-border 1s ease-in-out infinite;
-}
-</style>
-
 <script>
-let attackAlertInterval = null;
-let currentAlertId = null;
+let attackPollInterval = null;
+let dismissedUntil = null;
+let seenAlertIds = [];
 
-// Check for active alerts every 30 seconds
-function startAttackAlertPolling() {
-    checkAttackAlerts();
-    attackAlertInterval = setInterval(checkAttackAlerts, 30000);
+const DISMISS_KEY = 'attack_alert_snoozed_until';
+const SEEN_KEY = 'attack_alert_seen_ids';
+
+function initAttackAlertState() {
+    // Check snooze
+    const snoozed = localStorage.getItem(DISMISS_KEY);
+    if (snoozed) {
+        dismissedUntil = parseInt(snoozed);
+        if (Date.now() > dismissedUntil) {
+            localStorage.removeItem(DISMISS_KEY);
+            dismissedUntil = null;
+        }
+    }
+    
+    // Load seen IDs
+    try {
+        seenAlertIds = JSON.parse(localStorage.getItem(SEEN_KEY) || '[]');
+    } catch (e) {
+        seenAlertIds = [];
+    }
 }
 
-async function checkAttackAlerts() {
+function startAttackPolling() {
+    initAttackAlertState();
+    checkAttacks();
+    attackPollInterval = setInterval(checkAttacks, 10000); // Every 10s
+}
+
+async function checkAttacks() {
+    // Skip if snoozed
+    if (dismissedUntil && Date.now() < dismissedUntil) {
+        return;
+    }
+    
     try {
         const response = await fetch('/api/attack-alerts/active');
+        if (!response.ok) return;
+        
         const data = await response.json();
         
         if (data.count > 0) {
-            showAttackAlert(data.alerts[0], data.count);
+            // Filter out seen alerts - only show alerts not yet seen
+            const unseenAlerts = data.alerts.filter(a => !seenAlertIds.includes(a.id));
+            
+            if (unseenAlerts.length > 0) {
+                showAttackToast(unseenAlerts[0], unseenAlerts.length);
+            } else {
+                hideAttackToast();
+            }
+        } else {
+            hideAttackToast();
         }
-    } catch (error) {
-        console.error('Failed to check attack alerts:', error);
+    } catch (e) {
+        console.error('Attack poll error:', e);
     }
 }
 
-function showAttackAlert(alert, totalCount) {
-    currentAlertId = alert.id;
-    
+function showAttackToast(alert, count) {
     document.getElementById('attackType').textContent = alert.type.toUpperCase();
-    document.getElementById('attackSeverity').textContent = alert.severity.toUpperCase();
-    document.getElementById('attackSeverity').className = `font-semibold uppercase ${getSeverityColor(alert.severity)}`;
+    
+    const severityEl = document.getElementById('attackSeverity');
+    severityEl.textContent = alert.severity.toUpperCase();
+    severityEl.className = 'font-bold ' + getSeverityColor(alert.severity);
+    
     document.getElementById('attackIp').textContent = alert.ip;
     document.getElementById('attackUrl').textContent = alert.url;
-    document.getElementById('attackUserAgent').textContent = alert.user_agent || 'Unknown';
     document.getElementById('attackTime').textContent = alert.time;
     
-    if (totalCount > 1) {
-        document.getElementById('multipleAlerts').classList.remove('hidden');
-        document.getElementById('alertCount').textContent = totalCount;
+    const badge = document.getElementById('alertBadge');
+    const countEl = document.getElementById('attackCount');
+    if (count > 1) {
+        badge.textContent = '+' + (count - 1);
+        badge.classList.remove('hidden');
+        document.getElementById('countNum').textContent = count;
+        countEl.classList.remove('hidden');
     } else {
-        document.getElementById('multipleAlerts').classList.add('hidden');
+        badge.classList.add('hidden');
+        countEl.classList.add('hidden');
     }
     
-    document.getElementById('attackAlertModal').classList.remove('hidden');
+    document.getElementById('attackAlertToast').classList.remove('hidden');
+}
+
+function hideAttackToast() {
+    document.getElementById('attackAlertToast').classList.add('hidden');
+}
+
+// Mark all current alerts as seen (called when going to Attack Alerts page)
+async function markAlertsSeen() {
+    try {
+        const response = await fetch('/api/attack-alerts/active');
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        if (data.alerts) {
+            // Add all current alert IDs to seen list
+            data.alerts.forEach(a => {
+                if (!seenAlertIds.includes(a.id)) {
+                    seenAlertIds.push(a.id);
+                }
+            });
+            // Keep only last 100 IDs
+            if (seenAlertIds.length > 100) {
+                seenAlertIds = seenAlertIds.slice(-100);
+            }
+            localStorage.setItem(SEEN_KEY, JSON.stringify(seenAlertIds));
+        }
+    } catch (e) {}
+}
+
+function dismissFor30Min() {
+    hideAttackToast();
+    dismissedUntil = Date.now() + (30 * 60 * 1000); // 30 minutes
+    localStorage.setItem(DISMISS_KEY, dismissedUntil);
+    
+    if (typeof Toast !== 'undefined') {
+        Toast.fire({ icon: 'info', title: 'Snoozed for 30 minutes' });
+    }
 }
 
 function getSeverityColor(severity) {
-    switch (severity) {
-        case 'critical': return 'text-red-600 dark:text-red-400';
-        case 'high': return 'text-orange-600 dark:text-orange-400';
-        case 'medium': return 'text-yellow-600 dark:text-yellow-400';
-        case 'low': return 'text-blue-600 dark:text-blue-400';
-        default: return 'text-gray-600 dark:text-gray-400';
-    }
+    const colors = {
+        'critical': 'text-red-600 dark:text-red-400',
+        'high': 'text-orange-600 dark:text-orange-400',
+        'medium': 'text-yellow-600 dark:text-yellow-400',
+        'low': 'text-blue-600 dark:text-blue-400'
+    };
+    return colors[severity] || 'text-gray-600';
 }
 
-async function dismissAttackAlert() {
-    if (!currentAlertId) return;
-    
-    try {
-        const response = await fetch(`/admin/attack-alerts/${currentAlertId}/dismiss`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        });
-        
-        if (response.ok) {
-            document.getElementById('attackAlertModal').classList.add('hidden');
-            currentAlertId = null;
-        }
-    } catch (error) {
-        console.error('Failed to dismiss alert:', error);
-    }
+// Clear seen alerts when visiting attack alerts page
+if (window.location.pathname.includes('/admin/attack-alerts')) {
+    localStorage.removeItem(SEEN_KEY);
+    seenAlertIds = [];
 }
 
-// Start polling when page loads
-document.addEventListener('DOMContentLoaded', startAttackAlertPolling);
+document.addEventListener('DOMContentLoaded', startAttackPolling);
 </script>
+@endif

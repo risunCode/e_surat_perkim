@@ -25,3 +25,6 @@ Thumbs.db
 
 # Zencoder configuration
 .zencoder/
+
+# Pentest tools (local only)
+pentest-esurat-perkim/

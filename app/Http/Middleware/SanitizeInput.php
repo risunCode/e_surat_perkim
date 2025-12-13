@@ -56,6 +56,18 @@ class SanitizeInput
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Check if IP is blocked
+        $ip = $request->ip();
+        if (\App\Models\BlockedIp::isBlocked($ip)) {
+            \Log::warning('Blocked IP attempted access', ['ip' => $ip, 'url' => $request->fullUrl()]);
+            
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Access denied.'], 403);
+            }
+            
+            abort(403, 'Your IP address has been blocked due to suspicious activity.');
+        }
+        
         $input = $request->except($this->skipFields);
         
         foreach ($input as $key => $value) {
@@ -63,19 +75,23 @@ class SanitizeInput
                 $detected = $this->detectAttack($value);
                 
                 if ($detected) {
-                    // Log to attack_alerts table
-                    AttackAlert::logAttack(
-                        type: $detected['type'],
-                        severity: $detected['severity'],
-                        ip: $request->ip(),
-                        url: $request->fullUrl(),
-                        userAgent: $request->userAgent(),
-                        field: $key,
-                        payload: $value,
-                        details: "Pattern matched: {$detected['pattern']}",
-                        userId: auth()->id(),
-                        fingerprint: $request->header('X-Fingerprint')
-                    );
+                    // Log to attack_alerts table with auto-mitigated status
+                    // Since the attack was blocked, mark it as mitigated automatically
+                    $alert = AttackAlert::create([
+                        'attack_type' => $detected['type'],
+                        'severity' => $detected['severity'],
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent(),
+                        'fingerprint' => $request->header('X-Fingerprint'),
+                        'target_url' => $request->fullUrl(),
+                        'target_field' => $key,
+                        'payload' => substr($value, 0, 1000),
+                        'details' => "Pattern matched: {$detected['pattern']}",
+                        'user_id' => auth()->id(),
+                        'status' => AttackAlert::STATUS_MITIGATED, // Auto-mitigated since blocked
+                        'mitigation_notes' => 'Automatically blocked by SanitizeInput middleware',
+                        'mitigated_at' => now(),
+                    ]);
 
                     // Also log to Laravel log
                     \Log::warning('Attack detected and logged', [

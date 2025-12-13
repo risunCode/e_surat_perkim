@@ -15,14 +15,13 @@
         
         {{-- Bulk Actions Dropdown --}}
         <div class="flex items-center gap-2">
-            @if($stats['active'] > 0 || $stats['mitigated'] > 0)
-            <div class="relative" x-data="{ open: false }">
-                <button @click="open = !open" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+            @if($stats['total'] > 0)
+            <div class="relative">
+                <button onclick="toggleBulkDropdown()" id="bulkDropdownBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
                     <i class='bx bx-cog'></i> Bulk Actions
                     <i class='bx bx-chevron-down'></i>
                 </button>
-                <div x-show="open" @click.away="open = false" 
-                     class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                <div id="bulkDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
                     @if($stats['active'] > 0)
                     <form action="{{ route('admin.attack-alerts.mitigate-all') }}" method="POST">
                         @csrf
@@ -130,24 +129,57 @@
         </div>
     </div>
 
+    {{-- Live Console --}}
+    <div class="bg-gray-900 rounded-xl border border-gray-700 overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                </div>
+                <span class="text-gray-400 text-sm font-mono">Security Console</span>
+                <span id="consoleStatus" class="flex items-center gap-1 text-xs">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-green-400">LIVE</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="clearConsole()" class="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-700">
+                    <i class='bx bx-trash'></i> Clear
+                </button>
+                <button onclick="toggleConsole()" class="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-700">
+                    <i class='bx bx-minus' id="consoleToggleIcon"></i>
+                </button>
+            </div>
+        </div>
+        <div id="consoleBody" class="p-3 font-mono text-xs h-32 overflow-y-auto overflow-x-hidden" style="background: #0d1117;">
+            <div id="consoleOutput" class="space-y-1 break-all">
+                <p class="text-gray-500">[{{ now()->format('H:i:s') }}] <span class="text-cyan-400">SYSTEM</span> Security monitoring initialized...</p>
+                <p class="text-gray-500">[{{ now()->format('H:i:s') }}] <span class="text-cyan-400">SYSTEM</span> Listening for attack events...</p>
+            </div>
+        </div>
+    </div>
+
     {{-- Filters --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-        <form method="GET" class="flex flex-wrap items-center gap-4">
-            <select name="type" class="bg-gray-100 dark:bg-gray-700 border-0 rounded-lg text-sm">
+        <form method="GET" action="{{ route('admin.attack-alerts.index') }}" class="flex flex-wrap items-center gap-4">
+            <select name="type" class="bg-gray-100 dark:bg-gray-700 border-0 rounded-lg text-sm" onchange="this.form.submit()">
                 <option value="">All Types</option>
                 <option value="xss" {{ request('type') == 'xss' ? 'selected' : '' }}>XSS</option>
                 <option value="sqli" {{ request('type') == 'sqli' ? 'selected' : '' }}>SQL Injection</option>
                 <option value="injection" {{ request('type') == 'injection' ? 'selected' : '' }}>Command Injection</option>
                 <option value="traversal" {{ request('type') == 'traversal' ? 'selected' : '' }}>Path Traversal</option>
+                <option value="bruteforce" {{ request('type') == 'bruteforce' ? 'selected' : '' }}>Brute Force</option>
             </select>
-            <select name="severity" class="bg-gray-100 dark:bg-gray-700 border-0 rounded-lg text-sm">
+            <select name="severity" class="bg-gray-100 dark:bg-gray-700 border-0 rounded-lg text-sm" onchange="this.form.submit()">
                 <option value="">All Severity</option>
                 <option value="critical" {{ request('severity') == 'critical' ? 'selected' : '' }}>Critical</option>
                 <option value="high" {{ request('severity') == 'high' ? 'selected' : '' }}>High</option>
                 <option value="medium" {{ request('severity') == 'medium' ? 'selected' : '' }}>Medium</option>
                 <option value="low" {{ request('severity') == 'low' ? 'selected' : '' }}>Low</option>
             </select>
-            <select name="status" class="bg-gray-100 dark:bg-gray-700 border-0 rounded-lg text-sm">
+            <select name="status" class="bg-gray-100 dark:bg-gray-700 border-0 rounded-lg text-sm" onchange="this.form.submit()">
                 <option value="">All Status</option>
                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                 <option value="mitigated" {{ request('status') == 'mitigated' ? 'selected' : '' }}>Mitigated</option>
@@ -156,7 +188,11 @@
             <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm">
                 <i class='bx bx-filter'></i> Filter
             </button>
-            <a href="{{ route('admin.attack-alerts.index') }}" class="text-gray-500 hover:text-gray-700 text-sm">Reset</a>
+            @if(request()->hasAny(['type', 'severity', 'status']))
+            <a href="{{ route('admin.attack-alerts.index') }}" class="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
+                <i class='bx bx-x'></i> Reset
+            </a>
+            @endif
         </form>
     </div>
 
@@ -237,6 +273,14 @@
                                 </form>
                                 @endif
                                 
+                                <form action="{{ route('admin.attack-alerts.block-ip', $alert) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="p-1.5 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded" 
+                                            title="Block IP" onclick="return confirm('Block IP {{ $alert->ip_address }}?')">
+                                        <i class='bx bx-block'></i>
+                                    </button>
+                                </form>
+                                
                                 <form action="{{ route('admin.attack-alerts.destroy', $alert) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -266,4 +310,170 @@
         {{ $alerts->links() }}
     </div>
 </div>
+
+@push('scripts')
+<script>
+let lastAlertId = {{ $alerts->first()?->id ?? 0 }};
+let consoleCollapsed = false;
+let pollInterval = null;
+
+// Console functions
+function logToConsole(message, type = 'info') {
+    const output = document.getElementById('consoleOutput');
+    const time = new Date().toLocaleTimeString('en-GB');
+    
+    let colorClass = 'text-gray-400';
+    let typeLabel = 'INFO';
+    let typeLabelClass = 'text-blue-400';
+    
+    switch(type) {
+        case 'attack':
+            colorClass = 'text-red-400';
+            typeLabel = 'ATTACK';
+            typeLabelClass = 'text-red-500';
+            break;
+        case 'blocked':
+            colorClass = 'text-green-400';
+            typeLabel = 'BLOCKED';
+            typeLabelClass = 'text-green-500';
+            break;
+        case 'warning':
+            colorClass = 'text-yellow-400';
+            typeLabel = 'WARNING';
+            typeLabelClass = 'text-yellow-500';
+            break;
+        case 'mitigated':
+            colorClass = 'text-yellow-400';
+            typeLabel = 'MITIGATED';
+            typeLabelClass = 'text-yellow-500';
+            break;
+        case 'system':
+            colorClass = 'text-gray-400';
+            typeLabel = 'SYSTEM';
+            typeLabelClass = 'text-cyan-400';
+            break;
+    }
+    
+    const line = document.createElement('p');
+    line.className = colorClass;
+    line.innerHTML = `<span class="text-gray-600">[${time}]</span> <span class="${typeLabelClass}">${typeLabel}</span> ${message}`;
+    output.appendChild(line);
+    
+    // Auto scroll to bottom
+    const consoleBody = document.getElementById('consoleBody');
+    consoleBody.scrollTop = consoleBody.scrollHeight;
+    
+    // Keep only last 100 lines
+    while (output.children.length > 100) {
+        output.removeChild(output.firstChild);
+    }
+}
+
+function clearConsole() {
+    const output = document.getElementById('consoleOutput');
+    output.innerHTML = '';
+    logToConsole('Console cleared', 'system');
+}
+
+function toggleConsole() {
+    const body = document.getElementById('consoleBody');
+    const icon = document.getElementById('consoleToggleIcon');
+    consoleCollapsed = !consoleCollapsed;
+    
+    if (consoleCollapsed) {
+        body.classList.add('hidden');
+        icon.className = 'bx bx-plus';
+    } else {
+        body.classList.remove('hidden');
+        icon.className = 'bx bx-minus';
+    }
+}
+
+// Poll for new alerts
+async function pollAlerts() {
+    try {
+        const response = await fetch('/api/attack-alerts/active');
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        
+        if (data.alerts && data.alerts.length > 0) {
+            data.alerts.forEach(alert => {
+                if (alert.id > lastAlertId) {
+                    // New alert detected
+                    const severityEmoji = {
+                        'critical': '🔴',
+                        'high': '🟠',
+                        'medium': '🟡',
+                        'low': '🔵'
+                    }[alert.severity] || '⚪';
+                    
+                    const typeIcon = {
+                        'xss': '💉',
+                        'sqli': '🗄️',
+                        'injection': '🐛',
+                        'bruteforce': '🔑',
+                        'traversal': '📁'
+                    }[alert.type] || '⚠️';
+                    
+                    if (alert.status === 'mitigated') {
+                        logToConsole(`${severityEmoji} ${typeIcon} <span class="text-white">${alert.type.toUpperCase()}</span> attack from <span class="text-cyan-300">${alert.ip}</span> → <span class="text-gray-400">${alert.url}</span> <span class="text-green-400">[AUTO-BLOCKED]</span>`, 'mitigated');
+                    } else {
+                        logToConsole(`${severityEmoji} ${typeIcon} <span class="text-white">${alert.type.toUpperCase()}</span> attack detected from <span class="text-cyan-300">${alert.ip}</span> → <span class="text-gray-400">${alert.url}</span>`, 'attack');
+                    }
+                    
+                    lastAlertId = alert.id;
+                    
+                    // Update stats without page reload
+                    updateStats();
+                }
+            });
+        }
+    } catch (error) {
+        logToConsole('Connection error: ' + error.message, 'warning');
+    }
+}
+
+// Update stats cards
+async function updateStats() {
+    try {
+        const response = await fetch('{{ route("admin.attack-alerts.index") }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        // Just reload the page to update stats for simplicity
+        // In production, you'd parse and update individual elements
+    } catch (e) {}
+}
+
+// Start polling
+function startPolling() {
+    logToConsole('Real-time monitoring started (polling every 5s)', 'system');
+    pollAlerts();
+    pollInterval = setInterval(pollAlerts, 5000);
+}
+
+// Bulk dropdown toggle
+function toggleBulkDropdown() {
+    const dropdown = document.getElementById('bulkDropdown');
+    dropdown.classList.toggle('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('bulkDropdown');
+    const btn = document.getElementById('bulkDropdownBtn');
+    if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', startPolling);
+
+// Cleanup on page leave
+window.addEventListener('beforeunload', () => {
+    if (pollInterval) clearInterval(pollInterval);
+});
+</script>
+@endpush
 @endsection
