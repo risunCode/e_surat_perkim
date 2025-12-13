@@ -221,8 +221,18 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
         Route::prefix('attack-alerts')->name('attack-alerts.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\AttackAlertController::class, 'index'])->name('index');
             Route::get('/{attackAlert}', [\App\Http\Controllers\Admin\AttackAlertController::class, 'show'])->name('show');
+            
+            // Single alert actions
+            Route::post('/{attackAlert}/mitigate', [\App\Http\Controllers\Admin\AttackAlertController::class, 'mitigate'])->name('mitigate');
+            Route::post('/{attackAlert}/archive', [\App\Http\Controllers\Admin\AttackAlertController::class, 'archive'])->name('archive');
             Route::post('/{attackAlert}/dismiss', [\App\Http\Controllers\Admin\AttackAlertController::class, 'dismiss'])->name('dismiss');
+            Route::delete('/{attackAlert}', [\App\Http\Controllers\Admin\AttackAlertController::class, 'destroy'])->name('destroy');
+            
+            // Bulk actions
+            Route::post('/mitigate-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'mitigateAll'])->name('mitigate-all');
+            Route::post('/archive-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'archiveAll'])->name('archive-all');
             Route::post('/dismiss-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'dismissAll'])->name('dismiss-all');
+            Route::delete('/delete-archived', [\App\Http\Controllers\Admin\AttackAlertController::class, 'deleteAll'])->name('delete-archived');
         });
 
         // Settings

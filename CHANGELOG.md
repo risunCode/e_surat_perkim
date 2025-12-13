@@ -3,6 +3,70 @@ All notable changes to E-Surat Perkim will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.1.1] "Fortified Shield" - 2025-12-14
+**"Security Hardened & Battle Tested"** 🛡️
+
+### ✨ Added
+- **🛡️ Attack Alert Management System**
+  - New status workflow: Active → Mitigated → Archived
+  - Bulk actions: Mitigate All, Archive All, Delete Archived
+  - Per-alert actions: Mitigate, Archive, Delete
+  - Mitigation notes support for tracking remediation
+  - Timeline view showing alert lifecycle
+  - Enhanced stats dashboard (Active, Mitigated, Archived counts)
+
+- **🔒 Content Security Policy (CSP)**
+  - Optional CSP header protection against XSS
+  - Configurable via `CSP_ENABLED=true` in .env
+  - Whitelisted CDNs: jsdelivr, unpkg, Google Fonts
+  - Vite dev server and websocket support
+  - `/test-deface` excluded for pentest demo
+
+- **🎯 Pentest Tool Improvements**
+  - IDOR test now detects actual login status (not logged in / admin / staff)
+  - Smart vulnerability detection based on user role
+  - Brute force shows valid credentials when found
+  - Debug logging for response status and redirects
+  - Ngrok interstitial bypass header
+  - Target URL logging on attack start
+
+### 🔧 Fixed
+- **Authorization Consistency**
+  - Disposition edit/delete now admin-only (matching Letter policy)
+  - Attachment access simplified (all authenticated users can view)
+  
+- **CSRF Protection**
+  - `/test-deface` properly excluded from CSRF validation
+  - Fixed 419 errors on pentest deface endpoint
+
+- **Pentest Tool Bugs**
+  - Fixed brute force not detecting valid passwords
+  - Fixed IDOR test always saying "logged in as admin"
+  - Fixed path detector not finding paths on ngrok
+
+### 🔄 Changed
+- **Attack Alert Model**
+  - New `status` field replacing `is_dismissed`
+  - Added `mitigated_by`, `mitigated_at`, `mitigation_notes`
+  - Added `archived_by`, `archived_at`
+  - Scopes: `active()`, `mitigated()`, `archived()`, `notArchived()`
+
+- **Security Headers Middleware**
+  - CSP disabled by default (opt-in via .env)
+  - Dynamic CSP based on environment
+  - Excluded routes for intentionally vulnerable endpoints
+
+### 📚 Documentation
+- Updated SECURITY.md with CSP configuration guide
+- Updated .env.example with CSP_ENABLED option
+- Added CSP warning and testing notes
+
+### 🗄️ Database
+- Migration: `add_status_to_attack_alerts_table`
+- Auto-migrates existing dismissed alerts to archived status
+
+---
+
 ## [2.0.2] "Flowing Tides" - 2025-12-12
 **"Real-time & Refined"** 🔔
 

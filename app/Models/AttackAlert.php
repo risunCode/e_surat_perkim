@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AttackAlert extends Model
 {
+    // Status constants
+    const STATUS_ACTIVE = 'active';
+    const STATUS_MITIGATED = 'mitigated';
+    const STATUS_ARCHIVED = 'archived';
+
     protected $fillable = [
         'attack_type',
         'severity',
@@ -17,6 +22,12 @@ class AttackAlert extends Model
         'target_field',
         'payload',
         'details',
+        'status',
+        'mitigation_notes',
+        'mitigated_by',
+        'mitigated_at',
+        'archived_by',
+        'archived_at',
         'user_id',
         'is_dismissed',
         'dismissed_by',
@@ -28,6 +39,8 @@ class AttackAlert extends Model
         return [
             'is_dismissed' => 'boolean',
             'dismissed_at' => 'datetime',
+            'mitigated_at' => 'datetime',
+            'archived_at' => 'datetime',
         ];
     }
 
@@ -42,10 +55,35 @@ class AttackAlert extends Model
         return $this->belongsTo(User::class, 'dismissed_by');
     }
 
+    public function mitigatedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'mitigated_by');
+    }
+
+    public function archivedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'archived_by');
+    }
+
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('is_dismissed', false);
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    public function scopeMitigated($query)
+    {
+        return $query->where('status', self::STATUS_MITIGATED);
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->where('status', self::STATUS_ARCHIVED);
+    }
+
+    public function scopeNotArchived($query)
+    {
+        return $query->where('status', '!=', self::STATUS_ARCHIVED);
     }
 
     public function scopeRecent($query, int $hours = 24)
@@ -53,14 +91,49 @@ class AttackAlert extends Model
         return $query->where('created_at', '>=', now()->subHours($hours));
     }
 
-    // Helper methods
-    public function dismiss(int $userId): void
+    // Status check helpers
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isMitigated(): bool
+    {
+        return $this->status === self::STATUS_MITIGATED;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->status === self::STATUS_ARCHIVED;
+    }
+
+    // Action methods
+    public function markAsMitigated(int $userId, ?string $notes = null): void
     {
         $this->update([
+            'status' => self::STATUS_MITIGATED,
+            'mitigated_by' => $userId,
+            'mitigated_at' => now(),
+            'mitigation_notes' => $notes,
+        ]);
+    }
+
+    public function archive(int $userId): void
+    {
+        $this->update([
+            'status' => self::STATUS_ARCHIVED,
+            'archived_by' => $userId,
+            'archived_at' => now(),
             'is_dismissed' => true,
             'dismissed_by' => $userId,
             'dismissed_at' => now(),
         ]);
+    }
+
+    // Legacy dismiss method (now archives)
+    public function dismiss(int $userId): void
+    {
+        $this->archive($userId);
     }
 
     public function getSeverityColorAttribute(): string
@@ -71,6 +144,26 @@ class AttackAlert extends Model
             'medium' => 'yellow',
             'low' => 'blue',
             default => 'gray',
+        };
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => 'red',
+            self::STATUS_MITIGATED => 'yellow',
+            self::STATUS_ARCHIVED => 'green',
+            default => 'gray',
+        };
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => 'Active',
+            self::STATUS_MITIGATED => 'Mitigated',
+            self::STATUS_ARCHIVED => 'Archived',
+            default => 'Unknown',
         };
     }
 
@@ -111,6 +204,7 @@ class AttackAlert extends Model
             'payload' => $payload ? substr($payload, 0, 1000) : null,
             'details' => $details,
             'user_id' => $userId,
+            'status' => self::STATUS_ACTIVE,
         ]);
     }
 }

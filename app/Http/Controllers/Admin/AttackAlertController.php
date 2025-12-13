@@ -21,7 +21,7 @@ class AttackAlertController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('is_dismissed', $request->status === 'dismissed');
+            $query->where('status', $request->status);
         }
 
         $alerts = $query->paginate(20);
@@ -29,6 +29,8 @@ class AttackAlertController extends Controller
         $stats = [
             'total' => AttackAlert::count(),
             'active' => AttackAlert::active()->count(),
+            'mitigated' => AttackAlert::mitigated()->count(),
+            'archived' => AttackAlert::archived()->count(),
             'today' => AttackAlert::whereDate('created_at', today())->count(),
             'critical' => AttackAlert::where('severity', 'critical')->active()->count(),
         ];
@@ -38,7 +40,7 @@ class AttackAlertController extends Controller
 
     public function show(AttackAlert $attackAlert)
     {
-        $attackAlert->load(['user', 'dismissedByUser']);
+        $attackAlert->load(['user', 'dismissedByUser', 'mitigatedByUser', 'archivedByUser']);
         
         // Get related attacks from same IP
         $relatedAttacks = AttackAlert::where('ip_address', $attackAlert->ip_address)
@@ -50,22 +52,84 @@ class AttackAlertController extends Controller
         return view('pages.admin.attack-alerts.show', compact('attackAlert', 'relatedAttacks'));
     }
 
-    public function dismiss(AttackAlert $attackAlert)
+    // Mark as mitigated (in progress)
+    public function mitigate(Request $request, AttackAlert $attackAlert)
     {
-        $attackAlert->dismiss(auth()->id());
+        $request->validate([
+            'notes' => 'nullable|string|max:1000',
+        ]);
 
-        return back()->with('success', 'Alert berhasil di-dismiss.');
+        $attackAlert->markAsMitigated(auth()->id(), $request->notes);
+
+        return back()->with('success', 'Alert ditandai sebagai mitigated.');
     }
 
-    public function dismissAll()
+    // Archive single alert
+    public function archive(AttackAlert $attackAlert)
     {
+        $attackAlert->archive(auth()->id());
+
+        return back()->with('success', 'Alert berhasil di-archive.');
+    }
+
+    // Delete single alert
+    public function destroy(AttackAlert $attackAlert)
+    {
+        $attackAlert->delete();
+
+        return back()->with('success', 'Alert berhasil dihapus.');
+    }
+
+    // Legacy dismiss (now archives)
+    public function dismiss(AttackAlert $attackAlert)
+    {
+        $attackAlert->archive(auth()->id());
+
+        return back()->with('success', 'Alert berhasil di-archive.');
+    }
+
+    // Bulk actions
+    public function mitigateAll(Request $request)
+    {
+        $request->validate([
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
         AttackAlert::active()->update([
+            'status' => AttackAlert::STATUS_MITIGATED,
+            'mitigated_by' => auth()->id(),
+            'mitigated_at' => now(),
+            'mitigation_notes' => $request->notes,
+        ]);
+
+        return back()->with('success', 'Semua alert aktif ditandai sebagai mitigated.');
+    }
+
+    public function archiveAll()
+    {
+        AttackAlert::notArchived()->update([
+            'status' => AttackAlert::STATUS_ARCHIVED,
+            'archived_by' => auth()->id(),
+            'archived_at' => now(),
             'is_dismissed' => true,
             'dismissed_by' => auth()->id(),
             'dismissed_at' => now(),
         ]);
 
-        return back()->with('success', 'Semua alert berhasil di-dismiss.');
+        return back()->with('success', 'Semua alert berhasil di-archive.');
+    }
+
+    public function dismissAll()
+    {
+        // Legacy - now archives all
+        return $this->archiveAll();
+    }
+
+    public function deleteAll()
+    {
+        AttackAlert::archived()->delete();
+
+        return back()->with('success', 'Semua alert archived berhasil dihapus.');
     }
 
     // API endpoint for checking active alerts (used by frontend modal)

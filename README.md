@@ -1,6 +1,6 @@
-# E-Surat Perkim v2.0.2 "Flowing Tides"
+# E-Surat Perkim v2.1.1 "Fortified Shield"
 
-> *Real-time & Refined* — Sistem Manajemen Surat Digital untuk Instansi Pemerintah
+> *Security Hardened & Battle Tested* — Sistem Manajemen Surat Digital untuk Instansi Pemerintah
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 12">
