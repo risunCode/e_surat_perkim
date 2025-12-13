@@ -220,20 +220,28 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
         // Attack Alerts
         Route::prefix('attack-alerts')->name('attack-alerts.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\AttackAlertController::class, 'index'])->name('index');
-            Route::get('/{attackAlert}', [\App\Http\Controllers\Admin\AttackAlertController::class, 'show'])->name('show');
             
-            // Single alert actions
+            // Bulk actions (must be before parameter routes)
+            Route::post('/bulk/mitigate-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'mitigateAll'])->name('mitigate-all');
+            Route::post('/bulk/archive-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'archiveAll'])->name('archive-all');
+            Route::post('/bulk/dismiss-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'dismissAll'])->name('dismiss-all');
+            Route::delete('/bulk/delete-archived', [\App\Http\Controllers\Admin\AttackAlertController::class, 'deleteAll'])->name('delete-archived');
+            
+            // Single alert routes (parameter routes last)
+            Route::get('/{attackAlert}', [\App\Http\Controllers\Admin\AttackAlertController::class, 'show'])->name('show');
             Route::post('/{attackAlert}/mitigate', [\App\Http\Controllers\Admin\AttackAlertController::class, 'mitigate'])->name('mitigate');
             Route::post('/{attackAlert}/archive', [\App\Http\Controllers\Admin\AttackAlertController::class, 'archive'])->name('archive');
             Route::post('/{attackAlert}/dismiss', [\App\Http\Controllers\Admin\AttackAlertController::class, 'dismiss'])->name('dismiss');
             Route::post('/{attackAlert}/block-ip', [\App\Http\Controllers\Admin\AttackAlertController::class, 'blockIp'])->name('block-ip');
             Route::delete('/{attackAlert}', [\App\Http\Controllers\Admin\AttackAlertController::class, 'destroy'])->name('destroy');
-            
-            // Bulk actions
-            Route::post('/mitigate-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'mitigateAll'])->name('mitigate-all');
-            Route::post('/archive-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'archiveAll'])->name('archive-all');
-            Route::post('/dismiss-all', [\App\Http\Controllers\Admin\AttackAlertController::class, 'dismissAll'])->name('dismiss-all');
-            Route::delete('/delete-archived', [\App\Http\Controllers\Admin\AttackAlertController::class, 'deleteAll'])->name('delete-archived');
+        });
+
+        // Blocked IPs
+        Route::prefix('blocked-ips')->name('blocked-ips.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\BlockedIpController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\Admin\BlockedIpController::class, 'store'])->name('store');
+            Route::delete('/{blockedIp}', [\App\Http\Controllers\Admin\BlockedIpController::class, 'destroy'])->name('destroy');
+            Route::delete('/unblock-all/all', [\App\Http\Controllers\Admin\BlockedIpController::class, 'unblockAll'])->name('unblock-all');
         });
 
         // Settings

@@ -80,7 +80,7 @@ class AttackAlertController extends Controller
         return back()->with('success', 'Alert berhasil dihapus.');
     }
 
-    // Block IP address
+    // Block IP address (3 days by default)
     public function blockIp(AttackAlert $attackAlert)
     {
         $ip = $attackAlert->ip_address;
@@ -90,19 +90,20 @@ class AttackAlertController extends Controller
             return back()->with('error', "IP {$ip} sudah diblokir.");
         }
         
-        // Create block record
+        // Create block record (3 days default)
         \App\Models\BlockedIp::create([
             'ip_address' => $ip,
             'reason' => "Blocked due to {$attackAlert->attack_type} attack",
             'blocked_by' => auth()->id(),
-            'is_permanent' => true,
+            'is_permanent' => false,
+            'blocked_until' => now()->addDays(3),
             'attack_alert_id' => $attackAlert->id,
         ]);
         
         // Archive the alert
         $attackAlert->archive(auth()->id());
         
-        return back()->with('success', "IP {$ip} berhasil diblokir.");
+        return back()->with('success', "IP {$ip} diblokir selama 3 hari.");
     }
 
     // Legacy dismiss (now archives)
@@ -154,7 +155,7 @@ class AttackAlertController extends Controller
     {
         AttackAlert::archived()->delete();
 
-        return redirect()->route('admin.attack-alerts.index')->with('success', 'Semua alert archived berhasil dihapus.');
+        return back()->with('success', 'Semua alert archived berhasil dihapus.');
     }
 
     // API endpoint for checking active/mitigated alerts (used by frontend modal & console)

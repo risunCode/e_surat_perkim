@@ -204,6 +204,29 @@ Aplikasi ini menggunakan web routes dengan Blade views. Beberapa endpoint mengem
 | GET | `/admin/settings` | `admin.settings.index` | Settings page |
 | PUT | `/admin/settings` | `admin.settings.update` | Update settings |
 
+### Attack Alerts
+
+| Method | URI | Name | Description |
+|--------|-----|------|-------------|
+| GET | `/admin/attack-alerts` | `admin.attack-alerts.index` | List alerts |
+| GET | `/admin/attack-alerts/{attackAlert}` | `admin.attack-alerts.show` | Show detail |
+| POST | `/admin/attack-alerts/{attackAlert}/mitigate` | `admin.attack-alerts.mitigate` | Mark as mitigated |
+| POST | `/admin/attack-alerts/{attackAlert}/archive` | `admin.attack-alerts.archive` | Archive alert |
+| POST | `/admin/attack-alerts/{attackAlert}/block-ip` | `admin.attack-alerts.block-ip` | Block IP (3 days) |
+| DELETE | `/admin/attack-alerts/{attackAlert}` | `admin.attack-alerts.destroy` | Delete alert |
+| POST | `/admin/attack-alerts/bulk/mitigate-all` | `admin.attack-alerts.mitigate-all` | Mitigate all active |
+| POST | `/admin/attack-alerts/bulk/archive-all` | `admin.attack-alerts.archive-all` | Archive all |
+| DELETE | `/admin/attack-alerts/bulk/delete-archived` | `admin.attack-alerts.delete-archived` | Delete all archived |
+
+### Blocked IPs
+
+| Method | URI | Name | Description |
+|--------|-----|------|-------------|
+| GET | `/admin/blocked-ips` | `admin.blocked-ips.index` | List blocked IPs |
+| POST | `/admin/blocked-ips` | `admin.blocked-ips.store` | Block IP manually |
+| DELETE | `/admin/blocked-ips/{blockedIp}` | `admin.blocked-ips.destroy` | Unblock IP |
+| DELETE | `/admin/blocked-ips/unblock-all/all` | `admin.blocked-ips.unblock-all` | Unblock all IPs |
+
 ---
 
 ## JSON Responses
@@ -237,5 +260,30 @@ POST /notifications/{id}/read
 Response:
 {
     "success": true
+}
+```
+
+### Attack Alerts Active (for toast notification)
+```json
+GET /api/attack-alerts/active
+
+Response:
+{
+    "count": 2,
+    "active_count": 1,
+    "mitigated_count": 1,
+    "alerts": [
+        {
+            "id": 1,
+            "type": "xss",
+            "severity": "high",
+            "status": "mitigated",
+            "ip": "192.168.1.100",
+            "url": "/auth?search=<script>",
+            "time": "5 minutes ago",
+            "timestamp": "2025-12-13T15:25:53+07:00",
+            "user_agent": "Mozilla/5.0..."
+        }
+    ]
 }
 ```

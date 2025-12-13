@@ -266,6 +266,65 @@ $middleware->trustProxies(
 
 ---
 
+## 11. Attack Detection & Monitoring
+
+### Attack Alerts
+Sistem mendeteksi dan mencatat serangan secara otomatis:
+- **XSS** - Cross-Site Scripting attempts
+- **SQL Injection** - Database injection attempts
+- **Command Injection** - Shell command injection
+- **Path Traversal** - Directory traversal attempts
+
+### Auto-Mitigation
+```php
+// SanitizeInput middleware otomatis:
+// 1. Mendeteksi pattern serangan
+// 2. Mencatat ke database (attack_alerts)
+// 3. Memblokir request dengan 403 response
+// 4. Throttle logging (1 log per IP per attack type per 5 menit)
+```
+
+### Attack Alert Status
+- **Active** - Serangan baru terdeteksi
+- **Mitigated** - Sudah ditangani/diblokir
+- **Archived** - Sudah selesai ditinjau
+
+### Admin Panel
+Route: `/admin/attack-alerts`
+- Live console untuk monitoring real-time
+- Filter berdasarkan type, severity, status
+- Bulk actions: Mitigate All, Archive All, Delete Archived
+
+---
+
+## 12. IP Blocking
+
+### Blocked IPs Management
+Route: `/admin/blocked-ips`
+
+### Fitur
+- Block IP manual atau dari attack alert
+- Default durasi: 3 hari (auto-expire)
+- Opsi permanent block
+- Unblock single atau semua IP
+
+### Model
+```php
+// app/Models/BlockedIp.php
+BlockedIp::isBlocked($ip);  // Check if IP is blocked
+BlockedIp::block($ip, $reason, $days);  // Block IP
+```
+
+### Middleware Integration
+```php
+// SanitizeInput middleware cek blocked IP di awal:
+if (BlockedIp::isBlocked($request->ip())) {
+    abort(403, 'Access denied. Your IP has been blocked.');
+}
+```
+
+---
+
 ## Security Checklist
 
 - [ ] Set `APP_DEBUG=false` di production

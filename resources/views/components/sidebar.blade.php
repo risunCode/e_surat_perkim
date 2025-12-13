@@ -132,6 +132,19 @@
                 <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-red-500 text-white animate-pulse">{{ $activeAlertCount }}</span>
                 @endif
             </a>
+            
+            <a href="{{ route('admin.blocked-ips.index') }}" class="sidebar-link flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('admin.blocked-ips.*') ? 'active' : '' }}" style="{{ request()->routeIs('admin.blocked-ips.*') ? $activeStyle : $inactiveStyle }}">
+                <div class="flex items-center gap-3">
+                    <i class="bx bx-block text-xl"></i>
+                    <span class="font-medium">Blocked IPs</span>
+                </div>
+                @php
+                    $blockedIpCount = \App\Models\BlockedIp::active()->count();
+                @endphp
+                @if($blockedIpCount > 0)
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-purple-500 text-white">{{ $blockedIpCount }}</span>
+                @endif
+            </a>
         </div>
         @endif
         

@@ -95,18 +95,27 @@ function startAttackPolling() {
 async function checkAttacks() {
     // Skip if snoozed
     if (dismissedUntil && Date.now() < dismissedUntil) {
+        console.log('[AttackAlert] Snoozed, skipping check');
         return;
     }
     
     try {
+        console.log('[AttackAlert] Checking for attacks...');
         const response = await fetch('/api/attack-alerts/active');
-        if (!response.ok) return;
+        console.log('[AttackAlert] Response status:', response.status);
+        if (!response.ok) {
+            console.log('[AttackAlert] Response not OK');
+            return;
+        }
         
         const data = await response.json();
+        console.log('[AttackAlert] Data:', data);
+        console.log('[AttackAlert] Seen IDs:', seenAlertIds);
         
         if (data.count > 0) {
             // Filter out seen alerts - only show alerts not yet seen
             const unseenAlerts = data.alerts.filter(a => !seenAlertIds.includes(a.id));
+            console.log('[AttackAlert] Unseen alerts:', unseenAlerts.length);
             
             if (unseenAlerts.length > 0) {
                 showAttackToast(unseenAlerts[0], unseenAlerts.length);
@@ -114,10 +123,12 @@ async function checkAttacks() {
                 hideAttackToast();
             }
         } else {
+            // No active alerts - clear snooze and seen IDs
+            clearAlertState();
             hideAttackToast();
         }
     } catch (e) {
-        console.error('Attack poll error:', e);
+        console.error('[AttackAlert] Poll error:', e);
     }
 }
 
@@ -192,6 +203,15 @@ function getSeverityColor(severity) {
         'low': 'text-blue-600 dark:text-blue-400'
     };
     return colors[severity] || 'text-gray-600';
+}
+
+// Clear snooze and seen IDs when no active alerts
+function clearAlertState() {
+    localStorage.removeItem(DISMISS_KEY);
+    localStorage.removeItem(SEEN_KEY);
+    dismissedUntil = null;
+    seenAlertIds = [];
+    console.log('[AttackAlert] State cleared - no active alerts');
 }
 
 // Clear seen alerts when visiting attack alerts page

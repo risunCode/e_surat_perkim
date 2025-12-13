@@ -75,32 +75,40 @@ class SanitizeInput
                 $detected = $this->detectAttack($value);
                 
                 if ($detected) {
-                    // Log to attack_alerts table with auto-mitigated status
-                    // Since the attack was blocked, mark it as mitigated automatically
-                    $alert = AttackAlert::create([
-                        'attack_type' => $detected['type'],
-                        'severity' => $detected['severity'],
-                        'ip_address' => $request->ip(),
-                        'user_agent' => $request->userAgent(),
-                        'fingerprint' => $request->header('X-Fingerprint'),
-                        'target_url' => $request->fullUrl(),
-                        'target_field' => $key,
-                        'payload' => substr($value, 0, 1000),
-                        'details' => "Pattern matched: {$detected['pattern']}",
-                        'user_id' => auth()->id(),
-                        'status' => AttackAlert::STATUS_MITIGATED, // Auto-mitigated since blocked
-                        'mitigation_notes' => 'Automatically blocked by SanitizeInput middleware',
-                        'mitigated_at' => now(),
-                    ]);
+                    // Throttle: Only log if no similar attack from same IP in last 5 minutes
+                    $recentAttack = AttackAlert::where('ip_address', $request->ip())
+                        ->where('attack_type', $detected['type'])
+                        ->where('created_at', '>', now()->subMinutes(5))
+                        ->exists();
+                    
+                    if (!$recentAttack) {
+                        // Cleanup: Delete alerts older than 7 days (keep DB small)
+                        AttackAlert::where('created_at', '<', now()->subDays(7))
+                            ->where('status', AttackAlert::STATUS_ARCHIVED)
+                            ->delete();
+                        
+                        // Log to attack_alerts table with auto-mitigated status
+                        AttackAlert::create([
+                            'attack_type' => $detected['type'],
+                            'severity' => $detected['severity'],
+                            'ip_address' => $request->ip(),
+                            'user_agent' => $request->userAgent(),
+                            'fingerprint' => $request->header('X-Fingerprint'),
+                            'target_url' => $request->fullUrl(),
+                            'target_field' => $key,
+                            'payload' => substr($value, 0, 500), // Reduced payload size
+                            'details' => "Pattern matched",
+                            'user_id' => auth()->id(),
+                            'status' => AttackAlert::STATUS_MITIGATED,
+                            'mitigation_notes' => 'Auto-blocked by middleware',
+                            'mitigated_at' => now(),
+                        ]);
 
-                    // Also log to Laravel log
-                    \Log::warning('Attack detected and logged', [
-                        'type' => $detected['type'],
-                        'severity' => $detected['severity'],
-                        'ip' => $request->ip(),
-                        'field' => $key,
-                        'url' => $request->fullUrl(),
-                    ]);
+                        \Log::warning('Attack detected', [
+                            'type' => $detected['type'],
+                            'ip' => $request->ip(),
+                        ]);
+                    }
 
                     if ($request->expectsJson()) {
                         return response()->json([

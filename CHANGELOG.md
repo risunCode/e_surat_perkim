@@ -10,10 +10,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **🛡️ Attack Alert Management System**
   - New status workflow: Active → Mitigated → Archived
   - Bulk actions: Mitigate All, Archive All, Delete Archived
-  - Per-alert actions: Mitigate, Archive, Delete
+  - Per-alert actions: Mitigate, Archive, Block IP, Delete
   - Mitigation notes support for tracking remediation
-  - Timeline view showing alert lifecycle
-  - Enhanced stats dashboard (Active, Mitigated, Archived counts)
+  - Live security console with real-time attack monitoring
+  - Enhanced stats dashboard (Active, Mitigated, Archived, Today, Critical)
+  - Tips section for admin guidance
+
+- **🚫 IP Blocking System**
+  - Block malicious IPs from attack alerts
+  - Default block duration: 3 days (auto-expire)
+  - Option for permanent blocks
+  - Manual IP blocking via admin panel
+  - Unblock single or all IPs
+  - Integration with SanitizeInput middleware
+
+- **🔔 Attack Alert Toast Notification**
+  - Real-time toast notification for admin (bottom-right)
+  - Shows attack type, severity, IP, and target
+  - Snooze for 30 minutes option
+  - Auto-clear snooze when all alerts archived
+  - Polling every 10 seconds for new attacks
 
 - **🔒 Content Security Policy (CSP)**
   - Optional CSP header protection against XSS
@@ -63,7 +79,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### 🗄️ Database
 - Migration: `add_status_to_attack_alerts_table`
+- Migration: `create_blocked_ips_table`
 - Auto-migrates existing dismissed alerts to archived status
+- Attack logging throttle: 1 log per IP per attack type per 5 minutes
+- Auto-cleanup archived alerts older than 7 days
 
 ---
 

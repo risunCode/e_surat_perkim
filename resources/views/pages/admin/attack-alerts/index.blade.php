@@ -129,6 +129,23 @@
         </div>
     </div>
 
+    {{-- Tips --}}
+    @if($stats['active'] > 0 || $stats['mitigated'] > 0)
+    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+            <i class='bx bx-info-circle text-blue-500 text-xl mt-0.5'></i>
+            <div class="text-sm text-blue-800 dark:text-blue-300">
+                <p class="font-medium mb-1">Tips:</p>
+                <ul class="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-400">
+                    <li><strong>Archive All</strong> untuk menghilangkan notifikasi peringatan di pojok kanan bawah</li>
+                    <li><strong>Block IP</strong> untuk memblokir IP penyerang selama 3 hari</li>
+                    <li>Alert yang sudah di-archive dapat dihapus permanen via <strong>Bulk Actions → Delete Archived</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Live Console --}}
     <div class="bg-gray-900 rounded-xl border border-gray-700 overflow-hidden">
         <div class="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
