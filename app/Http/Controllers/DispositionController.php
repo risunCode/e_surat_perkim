@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDispositionRequest;
 use App\Models\Disposition;
 use App\Models\Letter;
 use App\Models\LetterStatus;
@@ -17,16 +18,9 @@ class DispositionController extends Controller
         return view('pages.transaction.disposition.create', compact('letter', 'statuses'));
     }
 
-    public function store(Request $request, Letter $letter)
+    public function store(StoreDispositionRequest $request, Letter $letter)
     {
-        $validated = $request->validate([
-            'to' => 'required|string|max:255',
-            'due_date' => 'required|date',
-            'content' => 'required|string',
-            'note' => 'nullable|string',
-            'letter_status' => 'required|exists:letter_statuses,id',
-        ]);
-
+        $validated = $request->validated();
         $validated['letter_id'] = $letter->id;
         $validated['user_id'] = Auth::id();
 
@@ -56,10 +50,12 @@ class DispositionController extends Controller
 
         $validated = $request->validate([
             'to' => 'required|string|max:255',
-            'due_date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:today',
             'content' => 'required|string',
             'note' => 'nullable|string',
             'letter_status' => 'required|exists:letter_statuses,id',
+        ], [
+            'due_date.after_or_equal' => 'Tanggal jatuh tempo tidak boleh di masa lalu.',
         ]);
 
         $disposition->update($validated);

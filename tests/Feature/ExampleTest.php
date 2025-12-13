@@ -8,11 +8,21 @@ use Tests\TestCase;
 class ExampleTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Test unauthenticated user is redirected to login.
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_unauthenticated_user_is_redirected(): void
     {
         $response = $this->get('/');
+
+        $response->assertRedirect('/login');
+    }
+
+    /**
+     * Test public verification page is accessible.
+     */
+    public function test_verification_page_is_accessible(): void
+    {
+        $response = $this->get('/verify');
 
         $response->assertStatus(200);
     }

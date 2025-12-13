@@ -18,7 +18,7 @@
                 </span>
             @endif
             
-            @if(auth()->user()->isAdmin() || $letter->user_id === auth()->id())
+            @if(auth()->user()->isAdmin())
             <div class="flex items-center gap-2">
                 @if($letter->is_completed)
                     <form action="{{ route('outgoing.toggleCompletion', $letter) }}" method="POST" class="inline">

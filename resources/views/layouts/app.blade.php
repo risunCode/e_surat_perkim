@@ -652,6 +652,9 @@
         @endif
     </script>
     
+    {{-- Real-time Toast Notifications --}}
+    @include('components.toast-notifications')
+    
     @stack('scripts')
 </body>
 </html>

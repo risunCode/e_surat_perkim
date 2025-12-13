@@ -3,6 +3,65 @@ All notable changes to E-Surat Perkim will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.0.2] "Flowing Tides" - 2025-12-12
+**"Real-time & Refined"** 🔔
+
+### ✨ Added
+- **🔔 Real-time Notification System**
+  - Toast notifications slide dari kanan atas
+  - Sound alerts menggunakan Web Audio API (Windows Style Extended)
+  - Badge counter di sidebar untuk surat masuk/keluar
+  - Polling setiap 30 detik untuk update real-time
+  - Test functions: `testNotification()`, `testNotificationSound()`
+
+- **🎵 Notification Sound Options**
+  - Windows Style Extended (active) - ascending dengan bounce
+  - Office Chime Professional (backup) - tersimpan di comment
+  - Pure Web Audio API, tidak perlu file eksternal
+
+- **📍 Toast Notification Features**
+  - Posisi: kanan atas dibawah navbar
+  - Auto-dismiss setelah 8 detik
+  - Tombol close yang jelas (bulat, hover merah)
+  - Klik untuk navigate ke surat terkait
+
+### 🔧 Fixed
+- **Timezone Configuration**
+  - Changed dari `UTC` ke `Asia/Jakarta`
+
+- **Dynamic Status Lookup**
+  - Hardcoded status ID `3` diganti dengan `LetterStatus::getCompletedStatusId()`
+  - Caching untuk performance
+
+- **SanitizeInput Middleware**
+  - Proper response handling untuk non-AJAX requests
+  - `expectsJson()` check untuk return type
+
+- **Disposisi Validation**
+  - Added `after_or_equal:today` untuk `due_date`
+
+### 🗑️ Removed
+- **Folder `database/migraplus/`** - SQL files tidak lagi diperlukan
+- **Logo `logo-kab.png`** dari navbar
+- **IP Display di production** - hanya tampil saat `APP_DEBUG=true`
+
+### 🔄 Changed
+- **Notification Controller**
+  - New `getRealtime()` method untuk enhanced polling
+  - Badge counts untuk incoming/outgoing notifications
+
+- **Project Structure**
+  - Steering docs dipindah ke `.kiro/steering/`
+  - Added `public/js/realtime-notifications.js`
+
+### 📚 Documentation
+- **README.md** - Updated installation guide
+  - Hapus referensi ke migraplus SQL files
+  - Added "Setup First Admin User" section
+  - Updated project structure
+
+---
+
 ## [2.0.1] "Optimized Shorekeeper" - 2025-11-30
 **"Performance & UX Refined"** ⚡
 

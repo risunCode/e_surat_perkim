@@ -32,12 +32,38 @@ class CreateNewUser implements CreatesNewUsers
             ],
             'password' => $this->passwordRules(),
             'reference_code' => ['required', 'string'],
+            '_refcode_token' => ['required', 'string'],
+        ], [
+            '_refcode_token.required' => 'Silakan verifikasi kode referensi terlebih dahulu.',
         ])->validate();
 
-        // Validate reference code
-        $refCode = ReferenceCode::where('code', strtoupper($input['reference_code']))
+        $code = strtoupper(trim($input['reference_code']));
+        $token = $input['_refcode_token'] ?? '';
+
+        // ANTI-BYPASS: Validate session token
+        $sessionCode = session('refcode_verified');
+        $sessionToken = session('refcode_token');
+        $verifiedAt = session('refcode_verified_at');
+
+        // Check if token matches and code matches
+        if (!$sessionToken || $sessionToken !== $token || $sessionCode !== $code) {
+            throw ValidationException::withMessages([
+                'reference_code' => ['Sesi verifikasi tidak valid. Silakan verifikasi ulang kode referensi.'],
+            ]);
+        }
+
+        // Check if verification is not expired (15 minutes max)
+        if (!$verifiedAt || now()->diffInMinutes($verifiedAt) > 15) {
+            // Clear session
+            session()->forget(['refcode_verified', 'refcode_token', 'refcode_verified_at']);
+            throw ValidationException::withMessages([
+                'reference_code' => ['Sesi verifikasi sudah kedaluwarsa. Silakan verifikasi ulang.'],
+            ]);
+        }
+
+        // Re-validate reference code (double check - in case status changed)
+        $refCode = ReferenceCode::where('code', $code)
             ->where('is_active', true)
-            ->whereNull('deleted_at')
             ->first();
 
         if (!$refCode) {
@@ -47,7 +73,7 @@ class CreateNewUser implements CreatesNewUsers
         }
 
         // Check if expired
-        if ($refCode->expired_at && $refCode->expired_at < now()) {
+        if ($refCode->expired_at && $refCode->expired_at->isPast()) {
             throw ValidationException::withMessages([
                 'reference_code' => ['Kode referensi sudah kedaluwarsa.'],
             ]);
@@ -71,6 +97,9 @@ class CreateNewUser implements CreatesNewUsers
         // Record usage
         $refCode->increment('used_count');
         $refCode->users()->attach($user->id, ['used_at' => now()]);
+
+        // Clear verification session
+        session()->forget(['refcode_verified', 'refcode_token', 'refcode_verified_at']);
 
         return $user;
     }

@@ -83,7 +83,7 @@
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('outgoing.show', $letter) }}" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);"><i class="bx bx-show"></i> Lihat</a>
-                                @if(auth()->user()->isAdmin() || $letter->user_id === auth()->id())
+                                @if(auth()->user()->isAdmin())
                                 <a href="{{ route('outgoing.edit', $letter) }}" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);"><i class="bx bx-edit"></i> Edit</a>
                                 <form id="delete-out-{{ $letter->id }}" action="{{ route('outgoing.destroy', $letter) }}" method="POST" class="inline">@csrf @method('DELETE')<button type="button" onclick="confirmDelete('delete-out-{{ $letter->id }}')" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200"><i class="bx bx-trash"></i> Hapus</button></form>
                                 @endif

@@ -28,11 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle.login' => \App\Http\Middleware\ThrottleLogins::class,
         ]);
 
-        // Global security middlewares (CheckUserActive only for authenticated)
+        // Global security middlewares
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\SanitizeInput::class,
             \App\Http\Middleware\CheckUserActive::class,
+            \App\Http\Middleware\CustomAuthenticateSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

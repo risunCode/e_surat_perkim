@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\TranscriptController;
 use App\Http\Controllers\DocumentVerificationController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\Auth\ReferenceCodeVerificationController;
 use Illuminate\Support\Facades\Route;
 
 // Guest routes (auth only)
@@ -26,6 +28,11 @@ Route::middleware('guest')->group(function () {
         $mode = request('mode', 'login');
         return view('pages.auth.index', ['mode' => $mode]);
     })->name('auth');
+    
+    // Reference code verification (AJAX)
+    Route::post('/auth/verify-refcode', [ReferenceCodeVerificationController::class, 'verify'])
+        ->name('refcode.verify')
+        ->middleware('throttle:10,1'); // 10 attempts per minute
 });
 
 // Password Reset (Local - Security Questions) - Allow both guest & authenticated
@@ -104,10 +111,17 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
         Route::get('/keluar', [GalleryController::class, 'outgoing'])->name('outgoing');
     });
 
-    // Notifications
-    Route::prefix('notifications')->name('notifications.')->group(function () {
+    // Activity Log (Histori Aktivitas)
+    Route::prefix('histori')->name('activity-log.')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+        Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
+    });
+
+    // Notifications (rate limited)
+    Route::prefix('notifications')->name('notifications.')->middleware('throttle:notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('index');
         Route::get('/unread', [NotificationController::class, 'getUnread'])->name('unread');
+        Route::get('/realtime', [NotificationController::class, 'getRealtime'])->name('realtime');
         Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('read');
         Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('read-all');
     });
@@ -122,10 +136,12 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSecuritySetup::class])->gr
         Route::post('/deactivate', [ProfileController::class, 'deactivate'])->name('deactivate');
     });
 
-    // File Serving with Cache Headers (Auth Protected)
-    Route::get('/attachments/{id}', [AttachmentController::class, 'serve'])->name('attachment.serve');
-    Route::get('/attachments/{id}/download', [AttachmentController::class, 'download'])->name('attachment.download');
-    Route::get('/profile-pictures/{filename}', [AttachmentController::class, 'profilePicture'])->name('profile.picture');
+    // File Serving with Cache Headers (Auth Protected, rate limited)
+    Route::middleware('throttle:downloads')->group(function () {
+        Route::get('/attachments/{id}', [AttachmentController::class, 'serve'])->name('attachment.serve');
+        Route::get('/attachments/{id}/download', [AttachmentController::class, 'download'])->name('attachment.download');
+        Route::get('/profile-pictures/{filename}', [AttachmentController::class, 'profilePicture'])->name('profile.picture');
+    });
 
     // Letter Transcript Print View
     Route::get('/transcript/{type}/{id}/print', [TranscriptController::class, 'printView'])->name('transcript.print');

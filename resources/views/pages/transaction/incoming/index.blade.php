@@ -106,7 +106,7 @@
                                 <a href="{{ route('incoming.show', $letter) }}" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);">
                                     <i class="bx bx-show"></i> Lihat
                                 </a>
-                                @if(auth()->user()->isAdmin() || $letter->user_id === auth()->id())
+                                @if(auth()->user()->isAdmin())
                                 <a href="{{ route('incoming.edit', $letter) }}" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs" style="background-color: var(--bg-input); color: var(--text-secondary);">
                                     <i class="bx bx-edit"></i> Edit
                                 </a>

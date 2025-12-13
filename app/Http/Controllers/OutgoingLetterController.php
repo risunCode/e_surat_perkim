@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LetterType;
+use App\Http\Requests\StoreLetterRequest;
+use App\Http\Requests\UpdateLetterRequest;
 use App\Models\Attachment;
 use App\Models\Classification;
 use App\Models\Letter;
@@ -70,7 +72,7 @@ class OutgoingLetterController extends Controller
         return view('pages.transaction.outgoing.create', compact('classifications', 'replyTo'));
     }
 
-    public function store(Request $request)
+    public function store(StoreLetterRequest $request)
     {
         // Validate total file size (max 15MB for all files combined)
         if ($request->hasFile('attachments')) {
@@ -83,19 +85,7 @@ class OutgoingLetterController extends Controller
             }
         }
 
-        $validated = $request->validate([
-            'reference_number' => 'required|unique:letters,reference_number',
-            'agenda_number' => 'nullable|string',
-            'to' => 'required|string|max:255',
-            'letter_date' => 'required|date',
-            'classification_code' => 'required|exists:classifications,code',
-            'description' => 'nullable|string',
-            'note' => 'nullable|string',
-            'reference_to' => 'nullable|exists:letters,id',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,txt,jpg,jpeg,png,gif|max:15360',
-        ]);
-
+        $validated = $request->validated();
         $validated['type'] = LetterType::OUTGOING->value;
         $validated['user_id'] = Auth::id();
         unset($validated['attachments']);
@@ -121,12 +111,16 @@ class OutgoingLetterController extends Controller
 
         // Auto-complete dispositions if this is a reply
         if ($letter->reference_to) {
-            $originalLetter = Letter::find($letter->reference_to);
-            if ($originalLetter && $originalLetter->isIncoming()) {
-                // Mark all pending dispositions as completed
-                $originalLetter->dispositions()
-                    ->where('letter_status', '!=', 3)  // 3 = completed status ID
-                    ->update(['letter_status' => 3]);
+            $completedStatusId = \App\Models\LetterStatus::getCompletedStatusId();
+            
+            if ($completedStatusId) {
+                $originalLetter = Letter::find($letter->reference_to);
+                if ($originalLetter && $originalLetter->isIncoming()) {
+                    // Mark all pending dispositions as completed
+                    $originalLetter->dispositions()
+                        ->where('letter_status', '!=', $completedStatusId)
+                        ->update(['letter_status' => $completedStatusId]);
+                }
             }
         }
 
@@ -163,9 +157,9 @@ class OutgoingLetterController extends Controller
         return view('pages.transaction.outgoing.edit', compact('letter', 'classifications'));
     }
 
-    public function update(Request $request, Letter $letter)
+    public function update(UpdateLetterRequest $request, Letter $letter)
     {
-        $this->authorizeEdit($letter);
+        // Authorization handled by UpdateLetterRequest::authorize()
 
         // Validate total file size (max 15MB for all files combined)
         if ($request->hasFile('attachments')) {
@@ -178,18 +172,7 @@ class OutgoingLetterController extends Controller
             }
         }
 
-        $validated = $request->validate([
-            'reference_number' => 'required|unique:letters,reference_number,' . $letter->id,
-            'agenda_number' => 'nullable|string',
-            'to' => 'required|string|max:255',
-            'letter_date' => 'required|date',
-            'classification_code' => 'required|exists:classifications,code',
-            'description' => 'nullable|string',
-            'note' => 'nullable|string',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,txt,jpg,jpeg,png,gif|max:15360',
-        ]);
-
+        $validated = $request->validated();
         unset($validated['attachments']);
         $letter->update($validated);
 
@@ -263,10 +246,13 @@ class OutgoingLetterController extends Controller
         return back()->with('success', $message);
     }
 
+    /**
+     * Only admin can edit/delete letters
+     */
     private function authorizeEdit(Letter $letter)
     {
-        if (!Auth::user()->isAdmin() && $letter->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak memiliki akses untuk mengubah surat ini.');
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Hanya administrator yang dapat mengubah atau menghapus surat.');
         }
     }
 }

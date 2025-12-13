@@ -38,14 +38,20 @@
         <div class="pt-4">
             <p class="px-3 text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--sidebar-text-muted);">Transaksi Surat</p>
             
-            <a href="{{ route('incoming.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('incoming.*') ? 'active' : '' }}" style="{{ request()->routeIs('incoming.*') ? $activeStyle : $inactiveStyle }}">
-                <i class="bx bx-envelope-open text-xl"></i>
-                <span class="font-medium">Surat Masuk</span>
+            <a href="{{ route('incoming.index') }}" class="sidebar-link flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('incoming.*') ? 'active' : '' }}" style="{{ request()->routeIs('incoming.*') ? $activeStyle : $inactiveStyle }}">
+                <div class="flex items-center gap-3">
+                    <i class="bx bx-envelope-open text-xl"></i>
+                    <span class="font-medium">Surat Masuk</span>
+                </div>
+                <span id="badge-incoming" class="hidden px-2 py-0.5 text-xs font-bold rounded-full bg-red-500 text-white animate-pulse">0</span>
             </a>
             
-            <a href="{{ route('outgoing.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('outgoing.*') ? 'active' : '' }}" style="{{ request()->routeIs('outgoing.*') ? $activeStyle : $inactiveStyle }}">
-                <i class="bx bx-send text-xl"></i>
-                <span class="font-medium">Surat Keluar</span>
+            <a href="{{ route('outgoing.index') }}" class="sidebar-link flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('outgoing.*') ? 'active' : '' }}" style="{{ request()->routeIs('outgoing.*') ? $activeStyle : $inactiveStyle }}">
+                <div class="flex items-center gap-3">
+                    <i class="bx bx-send text-xl"></i>
+                    <span class="font-medium">Surat Keluar</span>
+                </div>
+                <span id="badge-outgoing" class="hidden px-2 py-0.5 text-xs font-bold rounded-full bg-blue-500 text-white animate-pulse">0</span>
             </a>
         </div>
         
@@ -76,6 +82,11 @@
             <a href="{{ route('gallery.outgoing') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('gallery.outgoing') ? 'active' : '' }}" style="{{ request()->routeIs('gallery.outgoing') ? $activeStyle : $inactiveStyle }}">
                 <i class="bx bx-image text-xl"></i>
                 <span class="font-medium">Galeri Keluar</span>
+            </a>
+            
+            <a href="{{ route('activity-log.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {{ request()->routeIs('activity-log.*') ? 'active' : '' }}" style="{{ request()->routeIs('activity-log.*') ? $activeStyle : $inactiveStyle }}">
+                <i class="bx bx-history text-xl"></i>
+                <span class="font-medium">Histori Aktivitas</span>
             </a>
         </div>
         

@@ -51,9 +51,13 @@ class SanitizeInput
                     'user_id' => auth()->id(),
                 ]);
 
-                return response()->json([
-                    'message' => 'Input tidak valid terdeteksi.',
-                ], 400);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Input tidak valid terdeteksi.',
+                    ], 400);
+                }
+
+                return back()->withErrors(['error' => 'Input tidak valid terdeteksi.'])->withInput();
             }
         }
 

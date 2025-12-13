@@ -24,7 +24,7 @@
             @endif
             
             <div class="flex items-center gap-2">
-                @if(auth()->user()->isAdmin() || $letter->user_id === auth()->id())
+                @if(auth()->user()->isAdmin())
                     @if($letter->is_completed)
                         <form action="{{ route('incoming.toggleCompletion', $letter) }}" method="POST" class="inline">
                             @csrf
@@ -50,7 +50,7 @@
                 <button onclick="openModal('modal-create-disposition')" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium btn-primary">
                     <i class="bx bx-transfer"></i> Buat Disposisi
                 </button>
-                @if(auth()->user()->isAdmin() || $letter->user_id === auth()->id())
+                @if(auth()->user()->isAdmin())
                 <a href="{{ route('incoming.edit', $letter) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border" style="background-color: var(--bg-input); color: var(--text-primary); border-color: var(--border-color);">
                     <i class="bx bx-edit"></i> Edit
                 </a>

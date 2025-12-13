@@ -7,9 +7,8 @@
                 <i class="bx bx-menu text-2xl"></i>
             </button>
             
-            <!-- Government Logos -->
+            <!-- Government Logo -->
             <div class="flex items-center gap-2 lg:gap-3 pr-2 lg:pr-4 border-r" style="border-color: var(--border-color);">
-                <img src="{{ asset('images/logo-kab.png') }}" alt="Logo Kabupaten" class="h-6 lg:h-8 w-auto" onerror="this.style.display='none'">
                 <img src="{{ asset('images/logo-perkim.png') }}" alt="Logo Perkim" class="h-6 lg:h-8 w-auto" onerror="this.style.display='none'">
             </div>
             
@@ -60,12 +59,6 @@
                         <span class="text-xs font-mono text-green-700 dark:text-green-300">{{ $machineIp }}:{{ $port }}</span>
                     </div>
                 </div>
-            </div>
-            @else
-            <!-- Production IP Display (Desktop Only) -->
-            <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg mr-2" style="background-color: var(--bg-input); border: 1px solid var(--border-color);">
-                <i class="bx bx-globe text-sm" style="color: var(--text-secondary);"></i>
-                <span class="text-xs font-mono" style="color: var(--text-primary);" title="IP Address Anda">{{ request()->ip() }}</span>
             </div>
             @endif
             
@@ -195,12 +188,6 @@
                                     </div>
                                 </div>
                             </div>
-                            @else
-                            <!-- IP for Mobile - Production Only -->
-                            <div class="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded text-xs mt-2 w-fit" style="background-color: var(--bg-input); color: var(--text-secondary);" title="IP Address Anda">
-                                <i class="bx bx-globe text-xs"></i>
-                                <span class="font-mono">{{ request()->ip() }}</span>
-                            </div>
                             @endif
                         </div>
                     </div>
@@ -313,13 +300,5 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeChecks(currentTheme);
 });
 
-function markAllAsRead() {
-    fetch('{{ route("notifications.read-all") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    }).then(() => fetchNotifications());
-}
+// markAllAsRead is defined in realtime-notifications.js
 </script>

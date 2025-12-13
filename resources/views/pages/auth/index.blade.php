@@ -10,346 +10,393 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
-        .flip-container { perspective: 1000px; }
-        .flipper { 
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            position: relative;
-            min-height: 520px;
+        body { font-family: 'Inter', sans-serif; }
+        .auth-input {
+            transition: all 0.2s ease;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
-        .flip-container.flipped .flipper { transform: rotateY(180deg); }
-        .front, .back {
-            backface-visibility: hidden;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .auth-input:hover {
+            border-color: #cbd5e1;
+            background-color: #f1f5f9;
         }
-        .front { 
-            z-index: 2; 
-            transform: rotateY(0deg); 
+        .auth-input:focus {
+            border-color: #2563eb;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
-        .back { 
-            transform: rotateY(180deg); 
+        .auth-input::placeholder {
+            color: #94a3b8;
         }
-        .flip-container:not(.flipped) .back { pointer-events: none; }
-        .flip-container.flipped .front { pointer-events: none; }
-        
-        .bg-gradient-purple {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        .btn-primary-auth {
+            background: #2563eb;
+            transition: all 0.2s ease;
         }
-        
-        .slide-indicator {
-            transition: all 0.3s ease;
-        }
-        .slide-indicator.active {
-            width: 24px;
-            background: white;
-        }
-        
-        /* Card Animation */
-        .auth-card {
-            animation: slideUp 0.6s ease-out;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Button Shine Effect */
-        .btn-shine {
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-shine::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg) translateX(-100%);
-            transition: transform 0.6s;
-        }
-        .btn-shine:hover::after {
-            transform: rotate(45deg) translateX(100%);
-        }
-        
-        /* Card Glow */
-        .card-glow {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
-                        0 0 40px rgba(139, 92, 246, 0.1);
+        .btn-primary-auth:hover {
+            background: #1d4ed8;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gray-900">
+<body class="min-h-screen">
     <div class="min-h-screen flex">
-        <!-- Left Side - Background Image Slider -->
-        <div class="hidden lg:flex lg:w-3/5 relative bg-slate-900">
-            <!-- Slider Images -->
-            <div id="slider-1" class="slider-bg absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-100" style="background-image: url('{{ asset('images/authslider/slider-1.jpg') }}');"></div>
-            <div id="slider-2" class="slider-bg absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0" style="background-image: url('{{ asset('images/authslider/slider-2.jpg') }}');"></div>
-            <div id="slider-3" class="slider-bg absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0" style="background-image: url('{{ asset('images/authslider/slider-3.jpg') }}');"></div>
-            <!-- Dark Overlay -->
-            <div class="absolute inset-0 bg-black/40"></div>
-            
-            <!-- Logos & Clock - Absolute Top Right -->
-            <div class="absolute top-6 right-6 z-20 flex items-center gap-3">
-                <!-- Clock -->
-                <div class="flex items-center gap-2 px-4 py-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                    <i class="bx bx-time text-white text-xl"></i>
-                    <div>
-                        <p class="text-lg font-bold text-white leading-tight" id="clock">--:--</p>
-                        <p class="text-xs text-white/70" id="date-short">--</p>
+        <!-- Left Side - Form (putih) -->
+        <div class="w-full lg:w-[45%] flex flex-col bg-white">
+            <!-- Header -->
+            <div class="p-6">
+                <div class="flex items-center gap-3">
+                    <img src="{{ asset('images/logo-perkim.png') }}" alt="Logo" class="h-9 w-9 object-contain" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="h-9 w-9 rounded-lg bg-blue-600 items-center justify-center hidden">
+                        <i class="bx bx-envelope text-white text-lg"></i>
                     </div>
-                </div>
-                <!-- Logos -->
-                <div class="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                    <img src="{{ asset('images/logo-kab.png') }}" alt="Logo Kabupaten" class="h-10 w-auto">
-                    <img src="{{ asset('images/logo-perkim.png') }}" alt="Logo Perkim" class="h-10 w-auto">
+                    <div>
+                        <h1 class="font-semibold text-gray-900 text-sm">E-Surat Perkim</h1>
+                        <p class="text-xs text-gray-400">Dinas Perumahan dan Permukiman</p>
+                    </div>
                 </div>
             </div>
             
-            <!-- Content -->
-            <div class="relative z-10 flex flex-col justify-between p-12 text-white h-full">
-                <!-- Top Badge -->
-                <div>
-                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg">
-                        <i class="bx bx-envelope text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-sm">E-Surat</p>
-                            <p class="text-xs text-white/70" id="badge-text">Masuk ke Akun</p>
+            <!-- Form Container -->
+            <div class="flex-1 flex items-center justify-center px-8 lg:px-16">
+                <div class="w-full max-w-sm">
+                    <!-- Login Form -->
+                    <div id="login-form" class="{{ $mode === 'register' ? 'hidden' : '' }}">
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-1">Masuk ke Akun</h2>
+                            <p class="text-gray-400 text-sm mb-8">Silakan masukkan kredensial Anda</p>
+                            
+                            @if(session('status'))
+                                <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm flex items-center gap-2">
+                                    <i class="bx bx-check-circle text-lg"></i>
+                                    {{ session('status') }}
+                                </div>
+                            @endif
+                            
+                            @if(session('warning'))
+                                <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg text-sm flex items-center gap-2">
+                                    <i class="bx bx-info-circle text-lg"></i>
+                                    {{ session('warning') }}
+                                </div>
+                            @endif
+                            
+                            @if($errors->has('email') && $errors->first('email') == trans('auth.failed'))
+                                <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <i class="bx bx-error-circle"></i>
+                                        <span>Email atau kata sandi salah.</span>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                                @csrf
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                                    <input type="email" name="email" value="{{ old('email') }}" required autofocus
+                                        placeholder="nama@email.com"
+                                        class="auth-input w-full px-3 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                                    <div class="relative flex items-center">
+                                        <input type="password" name="password" id="loginPassword" required
+                                            placeholder="Masukkan password"
+                                            class="auth-input w-full px-3 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none pr-10">
+                                        <button type="button" onclick="togglePassword('loginPassword')" 
+                                            class="absolute right-3 text-gray-400 hover:text-gray-600">
+                                            <i class="bx bx-hide text-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="remember" 
+                                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-500">Ingat saya</span>
+                                    </label>
+                                    <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:text-blue-700">
+                                        Lupa password?
+                                    </a>
+                                </div>
+                                
+                                <button type="submit" class="btn-primary-auth w-full py-2.5 text-white font-medium rounded-md text-sm">
+                                    Masuk
+                                </button>
+                            </form>
+                            
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-500">
+                                    Belum punya akun? 
+                                    <button onclick="showRegister()" class="text-blue-600 hover:text-blue-700 font-medium underline">Daftar</button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 1: Reference Code Verification -->
+                    <div id="refcode-form" class="{{ $mode === 'register' ? '' : 'hidden' }}">
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-1">Verifikasi Kode Referensi</h2>
+                            <p class="text-gray-400 text-sm mb-8">Masukkan kode referensi untuk melanjutkan pendaftaran</p>
+                            
+                            <div id="refcode-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i class="bx bx-error-circle"></i>
+                                    <span id="refcode-error-text"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                        Kode Referensi <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="refcode-input" required autocomplete="off" maxlength="50"
+                                        class="auth-input w-full px-3 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none uppercase"
+                                        placeholder="Contoh: STAFF2025">
+                                    <p class="mt-1 text-xs text-gray-400">Hubungi administrator untuk mendapatkan kode</p>
+                                </div>
+                                
+                                <button type="button" onclick="verifyRefCode()" id="verify-btn"
+                                    class="btn-primary-auth w-full py-2.5 text-white font-medium rounded-md text-sm flex items-center justify-center gap-2">
+                                    <span>Verifikasi Kode</span>
+                                    <i class="bx bx-loader-alt bx-spin hidden" id="verify-spinner"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-500">
+                                    Sudah punya akun? 
+                                    <button onclick="showLogin()" class="text-blue-600 hover:text-blue-700 font-medium underline">Masuk</button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Register Form (shown after valid refcode) -->
+                    <div id="register-form" class="hidden">
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+                            <div class="flex items-center gap-2 mb-1">
+                                <button onclick="backToRefCode()" class="text-gray-400 hover:text-gray-600">
+                                    <i class="bx bx-arrow-back text-lg"></i>
+                                </button>
+                                <h2 class="text-xl font-bold text-gray-900">Buat Akun Baru</h2>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-6 ml-7">Lengkapi data untuk mendaftar</p>
+                            
+                            <!-- Show validated refcode info -->
+                            <div id="refcode-info" class="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <div class="flex items-center gap-2 text-green-700 text-sm">
+                                    <i class="bx bx-check-circle text-lg"></i>
+                                    <span>Kode valid: <strong id="validated-code"></strong></span>
+                                </div>
+                            </div>
+                            
+                            <form method="POST" action="{{ route('register') }}" class="space-y-4" id="register-form-element">
+                                @csrf
+                                <input type="hidden" name="reference_code" id="hidden-refcode">
+                                <input type="hidden" name="_refcode_token" id="refcode-token">
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama Lengkap</label>
+                                    <input type="text" name="name" value="{{ old('name') }}" required
+                                        placeholder="Masukkan nama lengkap"
+                                        class="auth-input w-full px-3 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none">
+                                    @error('name')
+                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                                    <input type="email" name="email" value="{{ old('email') }}" required
+                                        placeholder="nama@email.com"
+                                        class="auth-input w-full px-3 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none">
+                                    @error('email')
+                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                                        <div class="relative flex items-center">
+                                            <input type="password" name="password" id="regPassword" required minlength="8"
+                                                placeholder="Min. 8 karakter"
+                                                class="auth-input w-full px-3 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none pr-10">
+                                            <button type="button" onclick="togglePassword('regPassword')" 
+                                                class="absolute right-3 text-gray-400 hover:text-gray-600">
+                                                <i class="bx bx-hide text-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Konfirmasi</label>
+                                        <div class="relative flex items-center">
+                                            <input type="password" name="password_confirmation" id="regPasswordConfirm" required minlength="8"
+                                                placeholder="Ulangi password"
+                                                class="auth-input w-full px-3 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none pr-10">
+                                            <button type="button" onclick="togglePassword('regPasswordConfirm')" 
+                                                class="absolute right-3 text-gray-400 hover:text-gray-600">
+                                                <i class="bx bx-hide text-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @error('password')
+                                    <p class="text-sm text-red-500">{{ $message }}</p>
+                                @enderror
+                                
+                                <button type="submit" class="btn-primary-auth w-full py-2.5 text-white font-medium rounded-md text-sm">
+                                    Daftar
+                                </button>
+                            </form>
+                            
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-500">
+                                    Sudah punya akun? 
+                                    <button onclick="showLogin()" class="text-blue-600 hover:text-blue-700 font-medium underline">Masuk</button>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Bottom Content -->
-                <div>
-                    <h2 class="text-3xl font-bold mb-2" id="tagline-title">Kelola Surat Digital</h2>
-                    <p class="text-white/80 mb-6" id="tagline-desc">Sistem manajemen surat elektronik untuk instansi modern</p>
-                    
-                    <!-- Slide Indicators -->
-                    <div class="flex items-center gap-2">
-                        <button onclick="setSlide(0)" class="slide-indicator w-2 h-2 rounded-full bg-white/50 active" data-slide="0"></button>
-                        <button onclick="setSlide(1)" class="slide-indicator w-2 h-2 rounded-full bg-white/50" data-slide="1"></button>
-                        <button onclick="setSlide(2)" class="slide-indicator w-2 h-2 rounded-full bg-white/50" data-slide="2"></button>
-                    </div>
-                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-6 text-center">
+                <p class="text-xs text-gray-400">© {{ date('Y') }} Dinas Perumahan dan Permukiman • E-Surat</p>
             </div>
         </div>
         
-        <!-- Right Side - Auth Forms -->
-        <div class="w-full lg:w-2/5 flex items-start justify-center p-8 pt-16 bg-slate-800 overflow-hidden">
-            <div class="w-full max-w-md">
-                <!-- Flip Card Container -->
-                <div class="flip-container {{ $mode === 'register' ? 'flipped' : '' }}" id="authCard">
-                    <div class="flipper">
-                        <!-- Front - Login -->
-                        <div class="front">
-                            <div class="auth-card card-glow bg-white rounded-2xl p-8">
-                                <h2 class="text-xl font-bold text-gray-900 mb-1">Selamat Datang</h2>
-                                <p class="text-gray-500 text-sm mb-6">Masuk ke akun Anda</p>
-                                
-                                @if(session('status'))
-                                    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm flex items-center gap-2">
-                                        <i class="bx bx-check-circle text-lg"></i>
-                                        {{ session('status') }}
-                                    </div>
-                                @endif
-                                
-                                @if($errors->has('email') && $errors->first('email') == trans('auth.failed'))
-                                    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm" id="loginError">
-                                        <div class="flex items-start gap-3">
-                                            <i class="bx bx-error-circle text-xl"></i>
-                                            <div>
-                                                <p class="font-medium">Login Gagal</p>
-                                                <p class="mt-1">Email atau kata sandi yang Anda masukkan salah.</p>
-                                            </div>
-                                            <button type="button" onclick="document.getElementById('loginError').remove()" class="ml-auto text-red-400 hover:text-red-600">
-                                                <i class="bx bx-x text-xl"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                @endif
-                                
-                                <form method="POST" action="{{ route('login') }}" class="space-y-4">
-                                    @csrf
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                        <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('email') border-red-300 @enderror"
-                                            placeholder="Masukkan email">
-                                        @error('email')
-                                            @if($message != trans('auth.failed'))
-                                                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                            @endif
-                                        @enderror
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                        <div class="relative">
-                                            <input type="password" name="password" id="loginPassword" required
-                                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                                                placeholder="Password">
-                                            <button type="button" onclick="togglePassword('loginPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                                <i class="bx bx-hide text-xl"></i>
-                                            </button>
-                                        </div>
-                                        @error('password')
-                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between">
-                                        <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                                            <span class="text-sm text-gray-600">Ingat saya</span>
-                                        </label>
-                                        <a href="{{ route('password.request') }}" class="text-sm text-purple-600 hover:text-purple-700 font-medium">Lupa password?</a>
-                                    </div>
-                                    
-                                    <button type="submit" class="btn-shine w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition shadow-lg">
-                                        <i class="bx bx-log-in mr-1"></i> Masuk
-                                    </button>
-                                </form>
-                                
-                                <div class="mt-6 text-center">
-                                    <p class="text-sm text-gray-500">
-                                        Belum punya akun? 
-                                        <button onclick="flipCard()" class="text-purple-600 hover:text-purple-700 font-semibold">Daftar di sini</button>
-                                    </p>
-                                </div>
-                                
-                                <p class="text-center text-xs text-gray-400 mt-6">© {{ date('Y') }} E-Surat</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Back - Register -->
-                        <div class="back">
-                            <div class="auth-card card-glow bg-white rounded-2xl p-8">
-                                <h2 class="text-xl font-bold text-gray-900 mb-1">Buat Akun</h2>
-                                <p class="text-gray-500 text-sm mb-6">Daftar untuk mulai menggunakan</p>
-                                
-                                <form method="POST" action="{{ route('register') }}" class="space-y-4">
-                                    @csrf
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                                        <input type="text" name="name" value="{{ old('name') }}" required
-                                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                                            placeholder="Masukkan nama">
-                                        @error('name')
-                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                        <input type="email" name="email" value="{{ old('email') }}" required
-                                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                                            placeholder="Masukkan email">
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                            <div class="relative">
-                                                <input type="password" name="password" id="regPassword" required minlength="8"
-                                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                                                    placeholder="Min. 8 karakter">
-                                                <button type="button" onclick="togglePassword('regPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                                    <i class="bx bx-hide text-lg"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi</label>
-                                            <div class="relative">
-                                                <input type="password" name="password_confirmation" id="regPasswordConfirm" required minlength="8"
-                                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                                                    placeholder="Ulangi">
-                                                <button type="button" onclick="togglePassword('regPasswordConfirm')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                                    <i class="bx bx-hide text-lg"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @error('password')
-                                        <p class="text-sm text-red-500 -mt-2">{{ $message }}</p>
-                                    @enderror
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Kode Referensi <span class="text-red-500">*</span></label>
-                                        <input type="text" name="reference_code" value="{{ old('reference_code') }}" required
-                                            autocomplete="off" data-lpignore="true" data-form-type="other"
-                                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition uppercase"
-                                            placeholder="KODE REFERENSI">
-                                        <p class="mt-1 text-xs text-gray-400"><i class="bx bx-info-circle"></i> Wajib diisi untuk mendaftar</p>
-                                        @error('reference_code')
-                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    
-                                    <button type="submit" class="btn-shine w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition shadow-lg">
-                                        <i class="bx bx-user-plus mr-1"></i> Daftar Akun
-                                    </button>
-                                </form>
-                                
-                                <div class="mt-6 text-center">
-                                    <p class="text-sm text-gray-500">
-                                        Sudah punya akun? 
-                                        <button onclick="flipCard()" class="text-purple-600 hover:text-purple-700 font-semibold">Login di sini</button>
-                                    </p>
-                                </div>
-                                
-                                <p class="text-center text-xs text-gray-400 mt-4">© {{ date('Y') }} E-Surat</p>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Right Side - Branding (Blue with Background Image) -->
+        <div class="hidden lg:flex lg:w-[55%] relative overflow-hidden">
+            <!-- Background Images Slider -->
+            <div id="slider-1" class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-100" 
+                 style="background-image: url('{{ asset('images/authslider/slider-1.jpg') }}');"></div>
+            <div id="slider-2" class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0" 
+                 style="background-image: url('{{ asset('images/authslider/slider-2.jpg') }}');"></div>
+            <div id="slider-3" class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0" 
+                 style="background-image: url('{{ asset('images/authslider/slider-3.jpg') }}');"></div>
+            
+            <!-- Blue Overlay -->
+            <div class="absolute inset-0 bg-blue-600/80"></div>
+            
+            <!-- Content -->
+            <div class="relative z-10 flex flex-col items-center justify-center w-full p-12">
+                <!-- Logo -->
+                <div class="mb-6">
+                    <img src="{{ asset('images/logo-kab.png') }}" alt="Logo Kabupaten" class="h-28 w-auto"
+                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ffffff22%22 width=%22100%22 height=%22100%22 rx=%2210%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2240%22>🏛️</text></svg>'">
                 </div>
+                
+                <!-- Title -->
+                <h2 class="text-2xl font-bold text-white text-center mb-1">E-Surat Perkim</h2>
+                <p class="text-blue-200 text-center text-sm">Dinas Perumahan dan Permukiman</p>
             </div>
         </div>
     </div>
     
     <script>
-        const taglines = [
-            { title: 'Kelola Surat Digital', desc: 'Sistem manajemen surat elektronik untuk instansi modern' },
-            { title: 'Kolaborasi Tim', desc: 'Bekerja lebih efektif bersama tim' },
-            { title: 'Lacak Korespondensi', desc: 'Pantau alur surat masuk dan keluar dengan mudah' }
-        ];
+        let validatedRefCode = null;
+        let refCodeToken = null;
         
-        let currentSlide = 0;
-        
-        function setSlide(index) {
-            currentSlide = index;
-            document.getElementById('tagline-title').textContent = taglines[index].title;
-            document.getElementById('tagline-desc').textContent = taglines[index].desc;
-            
-            // Update indicators
-            document.querySelectorAll('.slide-indicator').forEach((el, i) => {
-                el.classList.toggle('active', i === index);
-            });
-            
-            // Update background images
-            document.querySelectorAll('.slider-bg').forEach((el, i) => {
-                el.style.opacity = i === index ? '1' : '0';
-            });
+        function showLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('refcode-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            validatedRefCode = null;
+            refCodeToken = null;
+            history.pushState({}, '', '/auth');
         }
         
-        function flipCard() {
-            const card = document.getElementById('authCard');
-            const isFlipped = card.classList.toggle('flipped');
-            document.getElementById('badge-text').textContent = isFlipped ? 'Pendaftaran Akun' : 'Masuk ke Akun';
-            
-            // Update URL without reload
-            const newUrl = isFlipped ? '/auth?mode=register' : '/auth';
-            history.pushState({}, '', newUrl);
+        function showRegister() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('refcode-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            history.pushState({}, '', '/auth?mode=register');
         }
+        
+        function backToRefCode() {
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('refcode-form').classList.remove('hidden');
+            validatedRefCode = null;
+            refCodeToken = null;
+        }
+        
+        async function verifyRefCode() {
+            const input = document.getElementById('refcode-input');
+            const code = input.value.trim().toUpperCase();
+            const errorDiv = document.getElementById('refcode-error');
+            const errorText = document.getElementById('refcode-error-text');
+            const spinner = document.getElementById('verify-spinner');
+            const btn = document.getElementById('verify-btn');
+            
+            if (!code) {
+                errorDiv.classList.remove('hidden');
+                errorText.textContent = 'Kode referensi wajib diisi.';
+                return;
+            }
+            
+            // Show loading
+            spinner.classList.remove('hidden');
+            btn.disabled = true;
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch('{{ route("refcode.verify") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+                
+                const data = await response.json();
+                
+                if (data.valid) {
+                    // Store validated code and token
+                    validatedRefCode = code;
+                    refCodeToken = data.token;
+                    
+                    // Update hidden fields
+                    document.getElementById('hidden-refcode').value = code;
+                    document.getElementById('refcode-token').value = data.token;
+                    document.getElementById('validated-code').textContent = code;
+                    
+                    // Show register form
+                    document.getElementById('refcode-form').classList.add('hidden');
+                    document.getElementById('register-form').classList.remove('hidden');
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    errorText.textContent = data.message || 'Kode referensi tidak valid.';
+                }
+            } catch (error) {
+                errorDiv.classList.remove('hidden');
+                errorText.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+            } finally {
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+        
+        // Allow Enter key to verify
+        document.getElementById('refcode-input')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                verifyRefCode();
+            }
+        });
         
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
@@ -363,31 +410,54 @@
             }
         }
         
-        // Auto slide
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % taglines.length;
-            setSlide(currentSlide);
-        }, 5000);
+        // Background slider
+        let currentSlide = 0;
+        const totalSlides = 3;
         
-        // Clock
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            
-            document.getElementById('clock').textContent = `${hours}:${minutes}`;
-            
-            const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-            const dayName = days[now.getDay()];
-            const date = now.getDate();
-            const month = now.getMonth() + 1;
-            const year = now.getFullYear();
-            
-            document.getElementById('date-short').textContent = `${dayName}, ${date}/${month}/${year}`;
+        function nextSlide() {
+            document.getElementById(`slider-${currentSlide + 1}`).style.opacity = '0';
+            currentSlide = (currentSlide + 1) % totalSlides;
+            document.getElementById(`slider-${currentSlide + 1}`).style.opacity = '1';
         }
         
-        updateClock();
-        setInterval(updateClock, 1000);
+        setInterval(nextSlide, 5000);
+    </script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Check for session expired via query param
+        function showSessionExpiredAlert() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('reason') === 'session_expired') {
+                // Wait for Swal to be available
+                if (typeof Swal === 'undefined') {
+                    setTimeout(showSessionExpiredAlert, 100);
+                    return;
+                }
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Sesi Berakhir',
+                    text: 'Sesi Anda telah berakhir karena login dari perangkat lain.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#2563eb',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    // Clean URL after showing alert
+                    window.history.replaceState({}, '', '/auth');
+                });
+            }
+        }
+        
+        // Run on DOM ready or immediately if already ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', showSessionExpiredAlert);
+        } else {
+            showSessionExpiredAlert();
+        }
     </script>
 </body>
 </html>

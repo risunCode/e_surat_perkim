@@ -25,6 +25,7 @@ class User extends Authenticatable
         'security_question',
         'security_answer',
         'security_setup_completed',
+        'current_session_id',
     ];
 
     protected $hidden = [

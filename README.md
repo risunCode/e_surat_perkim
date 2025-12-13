@@ -1,6 +1,6 @@
-# E-Surat Perkim v2.0.1 "Optimized Shorekeeper"
+# E-Surat Perkim v2.0.2 "Flowing Tides"
 
-> *Performance & UX Refined* — Sistem Manajemen Surat Digital untuk Instansi Pemerintah
+> *Real-time & Refined* — Sistem Manajemen Surat Digital untuk Instansi Pemerintah
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 12">
@@ -126,14 +126,40 @@ DB_PASSWORD=your_password
 # Jalankan migration & seeder
 php artisan migrate
 php artisan db:seed
-
-# Atau gunakan SQL file (alternatif)
-mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_full.sql
-mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_firstadmin.sql
-mysql -u root -p e_surat_perkim < database/migraplus/e_surat_perkim_references.sql
 ```
 
-### 5. Storage & Build
+### 5. Setup First Admin User
+
+Setelah migration selesai, buat user admin pertama melalui registrasi:
+
+1. Akses halaman registrasi: `http://localhost:8000/auth?mode=register`
+2. Isi form registrasi dengan data admin
+3. Gunakan **Reference Code**: `ADMIN2025` untuk role Administrator
+4. Atau gunakan `STAFF2025` untuk role Staff
+
+**Atau via Tinker (CLI):**
+```bash
+php artisan tinker
+```
+```php
+use App\Models\User;
+use App\Models\ReferenceCode;
+
+// Buat user admin
+User::create([
+    'name' => 'Administrator',
+    'email' => 'admin@perkim.go.id',
+    'password' => bcrypt('perkim2025x'),
+    'role' => 'admin',
+    'is_active' => true,
+    'security_setup_completed' => false,
+]);
+
+// Reference codes sudah dibuat oleh seeder, cek:
+ReferenceCode::all();
+```
+
+### 6. Storage & Build
 
 ```bash
 # Create storage link
@@ -152,15 +178,20 @@ php artisan serve
 
 ## 🔑 Default Login
 
+> **Note:** User admin harus dibuat manual via registrasi atau tinker. Lihat [Setup First Admin User](#5-setup-first-admin-user).
+
+**Contoh credentials (jika dibuat via tinker):**
 | Email | Password | Role |
 |-------|----------|------|
 | `admin@perkim.go.id` | `perkim2025x` | Administrator |
 
 **Reference Codes untuk Registrasi:**
-| Code | Role | Usage |
-|------|------|-------|
-| `ADMIN2025` | Admin | Max 5x |
+| Code | Role | Max Usage |
+|------|------|-----------|
+| `ADMIN2025` | Admin | 5x |
 | `STAFF2025` | Staff | Unlimited |
+
+> Reference codes dibuat otomatis oleh seeder. Admin dapat mengelola di `/admin/reference-codes`.
 
 ---
 
@@ -216,15 +247,16 @@ e-surat-perkim/
 │   └── Services/               # Business logic services
 ├── database/
 │   ├── migrations/             # Database migrations
-│   ├── migraplus/              # SQL files for quick setup
 │   └── seeders/                # Data seeders
+├── public/
+│   └── js/                     # JavaScript (realtime-notifications.js)
 ├── resources/
 │   ├── css/                    # TailwindCSS
 │   ├── js/                     # JavaScript
 │   └── views/                  # Blade templates
 ├── routes/
 │   └── web.php                 # Web routes
-└── .zencoder/rules/            # AI coding rules
+└── .kiro/steering/             # AI steering documentation
 ```
 
 ### Key Files

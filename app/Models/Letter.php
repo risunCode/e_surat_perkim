@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Letter extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'reference_number',
@@ -153,9 +155,22 @@ class Letter extends Model
      */
     public function needsReply(): bool
     {
+        $completedStatusId = $this->getCompletedStatusId();
+        
         return $this->isIncoming() && 
-               $this->dispositions()->where('letter_status', '!=', 3)->exists() &&
+               $completedStatusId &&
+               $this->dispositions()->where('letter_status', '!=', $completedStatusId)->exists() &&
                !$this->hasReply();
+    }
+
+    /**
+     * Get completed status ID with caching
+     */
+    protected function getCompletedStatusId(): ?int
+    {
+        return Cache::remember('letter_status_completed_id', 3600, function () {
+            return LetterStatus::getCompletedStatusId();
+        });
     }
 
     /**
@@ -170,11 +185,15 @@ class Letter extends Model
 
         // Auto-complete related dispositions if this is a reply
         if ($this->reference_to) {
-            $originalLetter = Letter::find($this->reference_to);
-            if ($originalLetter && $originalLetter->isIncoming()) {
-                $originalLetter->dispositions()
-                    ->where('letter_status', '!=', 3)  // 3 = completed status ID
-                    ->update(['letter_status' => 3]);  // Set to completed
+            $completedStatusId = $this->getCompletedStatusId();
+            
+            if ($completedStatusId) {
+                $originalLetter = Letter::find($this->reference_to);
+                if ($originalLetter && $originalLetter->isIncoming()) {
+                    $originalLetter->dispositions()
+                        ->where('letter_status', '!=', $completedStatusId)
+                        ->update(['letter_status' => $completedStatusId]);
+                }
             }
         }
     }
